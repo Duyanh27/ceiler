@@ -1,0 +1,161 @@
+/* Components.css */
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    font-family: Arial, sans-serif;
+  }
+  
+  .navbar a {
+    text-decoration: none;
+    color: #333;
+    margin: 0 1rem;
+    font-size: 1rem;
+  }
+  
+  .navbar a:hover {
+    color: #0070f3;
+  }
+  
+  /* HeroSection Styles */
+  .hero-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: #f9fafb;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #111827;
+  }
+  
+  .hero-section p {
+    font-size: 1.25rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-section button {
+    padding: 0.75rem 1.5rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .hero-section button:hover {
+    background-color: #005bb5;
+  }
+  
+  /* AuctionList Styles */
+  .auction-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+  
+  .auction-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    width: 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .auction-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  
+  .auction-item h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .auction-item p {
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+  
+  .auction-item button {
+    padding: 0.5rem 1rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .auction-item button:hover {
+    background-color: #005bb5;
+  }
+  
+  /* Newsletter Styles */
+  .newsletter {
+    text-align: center;
+    padding: 2rem;
+    background-color: #f3f4f6;
+    margin-top: 2rem;
+  }
+  
+  .newsletter h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .newsletter form {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .newsletter input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 250px;
+  }
+  
+  .newsletter button {
+    padding: 0.5rem 1rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .newsletter button:hover {
+    background-color: #005bb5;
+  }
+  
+  /* Footer Styles */
+  .footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  
+  .footer p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  

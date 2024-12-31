@@ -1,5 +1,4 @@
 import express from "express";
-import { requireAuth } from "@clerk/express"; // Import Clerk-provided middleware
 import {
   getAllUsers,
   getUserByClerkId,
@@ -11,12 +10,12 @@ import {
 const router = express.Router();
 
 // Admin-only routes
-router.get("/", requireAuth(), getAllUsers); // Fetch all users (admin-only)
-router.delete("/:id", requireAuth(), deleteUser); // Delete a user by ID (admin-only)
+router.get("/", getAllUsers); // Fetch all users (no auth for testing)
+router.delete("/:id", deleteUser); // Delete a user by ID (no auth for testing)
 
 // User-specific routes
-router.get("/me", requireAuth(), getUserByClerkId); // Get current user
-router.post("/sync", requireAuth(), syncUser); // Sync user from Clerk
-router.put("/wallet", requireAuth(), updateWalletBalance); // Update wallet balance
+router.get("/me", getUserByClerkId); // Get current user (no auth for testing)
+router.post("/sync", syncUser); // Sync user from Clerk (no auth for testing)
+router.put("/wallet", updateWalletBalance); // Update wallet balance (no auth for testing)
 
 export default router;

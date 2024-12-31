@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
       unique: true, // This also creates an index in Mongoose
       match: [/^\S+@\S+\.\S+$/, "Please use a valid email address."],
     }, // Email address
-    name: { type: String, required: true }, // User name
+    username: { type: String, required: true }, // User name
     walletBalance: { type: Number, default: 0 }, // Wallet balance
     role: {
       type: String,

@@ -1,7 +1,10 @@
-import React from 'react';
+"use client";
+
+import React from "react";
+import Link from "next/link";
 
 interface AuctionItem {
-  id: number;
+  id: string;
   title: string;
   image: string;
   description: string;
@@ -14,48 +17,70 @@ interface AuctionListProps {
 
 const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
   return (
-    <div style={styles.list}>
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "2rem",
+        justifyContent: "center",
+        padding: "2rem",
+        maxWidth: "1200px",
+        margin: "0 auto",
+      }}
+    >
       {items.map((item) => (
-        <div key={item.id} style={styles.item}>
-          <img src={item.image} alt={item.title} style={styles.image} />
-          <h3>{item.title}</h3>
-          <p>{item.description}</p>
-          <p>Current Bid: ${item.currentBid.toFixed(2)}</p>
-          <button style={styles.button}>Bid Now</button>
+        <div
+          key={item.id}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            padding: "16px",
+            textAlign: "center",
+            width: "250px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            backgroundColor: "#fff",
+            transition: "transform 0.2s ease",
+          }}
+        >
+          {/* Image */}
+          <img
+            src={item.image}
+            alt={item.title}
+            style={{
+              width: "100%",
+              height: "150px",
+              objectFit: "cover",
+              borderRadius: "4px",
+            }}
+          />
+          {/* Title */}
+          <h3 style={{ marginTop: "1rem", fontSize: "1.2rem", fontWeight: "bold" }}>{item.title}</h3>
+          {/* Current Bid */}
+          <p style={{ margin: "0.5rem 0", fontSize: "1rem", color: "#555" }}>
+            Current Bid: <span style={{ fontWeight: "bold" }}>${item.currentBid.toFixed(2)}</span>
+          </p>
+          {/* View Details Button */}
+          <Link href={`/items/${item.id}`}>
+            <button
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#0070f3",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                marginTop: "1rem",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#005bb5")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0070f3")}
+            >
+              View Details
+            </button>
+          </Link>
         </div>
       ))}
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  list: {
-    display: 'flex',
-    flexWrap: 'wrap' as 'wrap', // Explicit casting for FlexWrap
-    gap: '2rem',
-    justifyContent: 'center',
-  },
-  item: {
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    padding: '16px',
-    textAlign: 'center',
-    width: '250px',
-  },
-  image: {
-    width: '100%',
-    height: 'auto',
-    borderRadius: '4px',
-  },
-  button: {
-    marginTop: '1rem',
-    padding: '0.5rem 1rem',
-    backgroundColor: '#0070f3',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
 };
 
 export default AuctionList;

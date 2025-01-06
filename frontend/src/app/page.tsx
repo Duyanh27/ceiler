@@ -131,49 +131,49 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Navbar */}
-      <Navbar />
+     {/* Navbar */}
+     <Navbar />
 
-      {/* Hero Section */}
-      <HeroSection
-        headline="Welcome to the Auction Platform"
-        subheadline="Find rare treasures and unique items. Start bidding now!"
-        buttonText="Explore Auctions"
-        onButtonClick={() => console.log("Explore Auctions clicked")}
-      />
+{/* Hero Section */}
+<HeroSection
+  headline="Explore Detailed Product Auctions"
+  subheadline="Dive deep into the rarest treasures and start your bidding journey."
+  buttonText="Start Bidding"
+  onButtonClick={() => console.log('Start Bidding clicked')}
+/>
 
-      {/* Auction List */}
-      <div style={{ margin: "50px auto", maxWidth: "1200px", padding: "0 1rem" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Current Auctions</h2>
-        <AuctionList items={currentItems} />
-      </div>
+{/* Auction List */}
+<div style={{ margin: '50px auto', maxWidth: '1200px', padding: '0 1rem' }}>
+  <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Available Auctions</h2>
+  <AuctionList items={currentItems} />
+</div>
 
-      {/* Pagination */}
-      <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => handlePageChange(index + 1)}
-            style={{
-              padding: "0.5rem 1rem",
-              margin: "0 5px",
-              backgroundColor: currentPage === index + 1 ? "#0070f3" : "#f3f3f3",
-              color: currentPage === index + 1 ? "#fff" : "#000",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+{/* Pagination */}
+<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+  {Array.from({ length: totalPages }, (_, index) => (
+    <button
+      key={index + 1}
+      onClick={() => handlePageChange(index + 1)}
+      style={{
+        padding: '0.5rem 1rem',
+        margin: '0 5px',
+        backgroundColor: currentPage === index + 1 ? '#0070f3' : '#f3f3f3',
+        color: currentPage === index + 1 ? '#fff' : '#000',
+        border: '1px solid #ddd',
+        borderRadius: '5px',
+        cursor: 'pointer',
+      }}
+    >
+      {index + 1}
+    </button>
+  ))}
+</div>
 
-      {/* Newsletter */}
-      <Newsletter />
+{/* Newsletter */}
+<Newsletter />
 
-      {/* Footer */}
-      <Footer />
-    </>
-  );
+{/* Footer */}
+<Footer />
+</>
+);
 }

@@ -104,101 +104,132 @@ const items = [
   },
 ];
 
+
+
 const ItemDetailsPage = () => {
-  const params = useParams(); // Retrieve the dynamic route parameter
-  const { id } = params;
-
-  const item = items.find((item) => item.id === id);
-
-  if (!item) {
+    const params = useParams();
+    const { id } = params;
+  
+    const item = items.find((item) => item.id === id);
+  
+    if (!item) {
+      return (
+        <div style={{ textAlign: "center", padding: "2rem", color: "black" }}>
+          <h1>Item not found</h1>
+          <p>The item you're looking for does not exist.</p>
+        </div>
+      );
+    }
+  
     return (
-      <div style={{ textAlign: "center", padding: "2rem" }}>
-        <h1>Item not found</h1>
-        <p>The item you're looking for does not exist.</p>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <Navbar />
-      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ display: "flex", gap: "2rem" }}>
-          {/* Left Section: Item Image */}
-          <div style={{ flex: 1 }}>
-            <Image
-              src={item.image}
-              alt={item.title}
-              width={500}
-              height={400}
-              style={{ borderRadius: "8px", objectFit: "cover" }}
-            />
-          </div>
-
-          {/* Right Section: Item Details */}
-          <div style={{ flex: 1 }}>
-            <h1>{item.title}</h1>
-            <p>
-              <strong>Time left:</strong> {item.timeLeft}
-            </p>
-            <p>
-              <strong>Current Bid:</strong> ${item.currentBid.toFixed(2)}
-            </p>
-            <p>{item.description}</p>
-            <button
-              style={{
-                padding: "1rem 2rem",
-                backgroundColor: "#0070f3",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginTop: "1rem",
-              }}
-            >
-              Bid Now
-            </button>
+      <>
+        <Navbar />
+        <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", color: "black" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2rem",
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              padding: "2rem",
+            }}
+          >
+            {/* Header Section */}
+            <div style={{ display: "flex", gap: "2rem" }}>
+              {/* Left Section: Item Image */}
+              <div style={{ flex: 1 }}>
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  width={600}
+                  height={500}
+                  style={{ borderRadius: "8px", objectFit: "cover", width: "100%" }}
+                />
+              </div>
+  
+              {/* Right Section: Item Details */}
+              <div style={{ flex: 1 }}>
+                <h1 style={{ marginBottom: "1rem", fontSize: "2rem" }}>{item.title}</h1>
+                <p style={{ marginBottom: "0.5rem" }}>
+                  <strong>Time left:</strong> {item.timeLeft}
+                </p>
+                <p style={{ marginBottom: "0.5rem" }}>
+                  <strong>Current Bid:</strong>{" "}
+                  <span style={{ fontWeight: "bold", fontSize: "1.2rem" }}>${item.currentBid.toFixed(2)}</span>
+                </p>
+                <p style={{ marginBottom: "1rem" }}>{item.description}</p>
+                <button
+                  style={{
+                    padding: "1rem 2rem",
+                    backgroundColor: "#0070f3",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontSize: "1rem",
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#005bb5")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0070f3")}
+                >
+                  Bid Now
+                </button>
+              </div>
+            </div>
+  
+            {/* About This Item */}
             <div style={{ marginTop: "2rem" }}>
-              <h3>Shipping & Delivery</h3>
-              <p>
+              <h2 style={{ marginBottom: "1rem", fontSize: "1.5rem" }}>About this item</h2>
+              <p style={{ lineHeight: "1.8" }}>{item.details}</p>
+            </div>
+  
+            {/* Shipping & Delivery */}
+            <div style={{ marginTop: "2rem" }}>
+              <h3 style={{ marginBottom: "1rem", fontSize: "1.5rem" }}>Shipping & Delivery</h3>
+              <p style={{ marginBottom: "0.5rem" }}>
                 <strong>Shipping:</strong> {item.shippingCost}
               </p>
               <p>
                 <strong>Delivery:</strong> {item.deliveryEstimate}
               </p>
             </div>
+  
+            {/* Seller Section */}
+            <div
+              style={{
+                marginTop: "2rem",
+                display: "flex",
+                alignItems: "center",
+                padding: "1rem",
+                backgroundColor: "#f9f9f9",
+                borderRadius: "8px",
+                border: "1px solid #ddd",
+              }}
+            >
+              <Image
+                src={item.seller.image}
+                alt={item.seller.name}
+                width={80}
+                height={80}
+                style={{
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+              />
+              <div style={{ marginLeft: "1rem" }}>
+                <h3 style={{ marginBottom: "0.5rem", fontSize: "1.2rem" }}>{item.seller.name}</h3>
+                <p style={{ margin: 0 }}>
+                  <strong>{item.seller.rating.toFixed(1)}</strong> ({item.seller.reviews} reviews)
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* About This Item */}
-        <div style={{ marginTop: "2rem" }}>
-          <h2>About this item</h2>
-          <p>{item.details}</p>
-        </div>
-
-        {/* Seller Section */}
-        <div style={{ marginTop: "2rem", display: "flex", gap: "1rem", alignItems: "center" }}>
-          <Image
-            src={item.seller.image}
-            alt={item.seller.name}
-            width={80}
-            height={80}
-            style={{
-              borderRadius: "50%",
-              objectFit: "cover",
-            }}
-          />
-          <div>
-            <h3>{item.seller.name}</h3>
-            <p>
-              <strong>{item.seller.rating.toFixed(1)}</strong> ({item.seller.reviews} reviews)
-            </p>
-          </div>
-        </div>
-      </div>
-      <Footer />
-    </>
-  );
-};
-
-export default ItemDetailsPage;
+        <Footer />
+      </>
+    );
+  };
+  
+  export default ItemDetailsPage;

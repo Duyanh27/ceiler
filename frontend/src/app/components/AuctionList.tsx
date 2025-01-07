@@ -72,23 +72,23 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
             Current Bid: <span style={{ fontWeight: "bold" }}>${item.currentBid.toFixed(2)}</span>
           </p>
           {/* View Details Button */}
-          <Link href={`/items/${item.id}`}>
-            <button
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#0070f3",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginTop: "1rem",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#005bb5")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0070f3")}
-            >
-              View Details
-            </button>
-          </Link>
+          <Link href={`/items/${item.id}`} passHref>
+  <button
+    style={{
+      padding: "0.5rem 1rem",
+      backgroundColor: "#0070f3",
+      color: "white",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+      marginTop: "1rem",
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#005bb5")}
+    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0070f3")}
+  >
+    View Details
+  </button>
+</Link>
         </div>
       ))}
     </div>

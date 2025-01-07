@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface AuctionItem {
   id: string;
@@ -39,19 +40,30 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
             width: "250px",
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             backgroundColor: "#fff",
-            transition: "transform 0.2s ease",
+            transition: "transform 0.2s ease, box-shadow 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
           }}
         >
-          {/* Image */}
-          <img
+          {/* Optimized Image */}
+          <Image
             src={item.image}
             alt={item.title}
+            width={250}
+            height={150}
             style={{
               width: "100%",
               height: "150px",
               objectFit: "cover",
               borderRadius: "4px",
             }}
+            priority
           />
           {/* Title */}
           <h3 style={{ marginTop: "1rem", fontSize: "1.2rem", fontWeight: "bold" }}>{item.title}</h3>

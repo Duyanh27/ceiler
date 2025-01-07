@@ -1,11 +1,12 @@
-"use client";
+'use client';
 
 import React, { useState } from "react";
-import Navbar from "./components/navbar"; // Ensure correct path and casing
-import HeroSection from "./components/HeroSection";
-import AuctionList from "./components/AuctionList";
-import Newsletter from "./components/Newsletter";
-import Footer from "./components/footer";
+import Navbar from './components/navbar'; // Ensure correct path and casing
+import HeroSection from './components/HeroSection';
+import AuctionList from './components/AuctionList';
+import Newsletter from './components/Newsletter';
+import Footer from './components/footer';
+import FilterModal from './components/FilterModal'; // Add this to handle the modal
 
 const auctionItems = [
   {
@@ -117,6 +118,7 @@ const auctionItems = [
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [isFilterOpen, setIsFilterOpen] = useState(false); // State for Filter Modal
   const itemsPerPage = 5;
 
   // Calculate pagination values
@@ -141,6 +143,22 @@ export default function HomePage() {
         buttonText="Start Bidding"
         onButtonClick={() => console.log("Start Bidding clicked")}
       />
+
+      {/* Filter Button */}
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <button
+          onClick={() => setIsFilterOpen(true)}
+          style={{
+            backgroundColor: "#f3f3f3",
+            padding: "10px 20px",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Filter
+        </button>
+      </div>
 
       {/* Auction List */}
       <div style={{ margin: "50px auto", maxWidth: "1200px", padding: "0 1rem" }}>
@@ -174,6 +192,14 @@ export default function HomePage() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Filter Modal */}
+      {isFilterOpen && (
+        <FilterModal
+          onClose={() => setIsFilterOpen(false)}
+          // Pass any additional props or filters to the modal
+        />
+      )}
     </>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import FilterModal from './components/FilterModal';
+import React, { useState } from "react";
+import FilterModal from "./components/FilterModal";
 
 const HomePage: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -13,35 +13,34 @@ const HomePage: React.FC = () => {
     );
   };
 
-  const handleFilterOpen = () => setIsFilterOpen(true);
-  const handleFilterClose = () => setIsFilterOpen(false);
   const handleApplyFilters = () => {
-    // Implement the logic to filter the auction items based on selectedCategories
-    console.log('Selected categories:', selectedCategories);
-    handleFilterClose();
+    console.log("Selected categories:", selectedCategories);
+    setIsFilterOpen(false); // Close the modal after applying filters
   };
 
   return (
-    <div className="p-6">
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Ongoing Auctions</h1>
-        <button
-          onClick={handleFilterOpen}
-          className="bg-gray-200 px-4 py-2 rounded border border-gray-400"
-        >
-          Filter
-        </button>
-      </header>
+    <div>
+      <div className="p-6">
+        <header className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Ongoing Auctions</h1>
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="bg-gray-200 px-4 py-2 rounded border border-gray-400"
+          >
+            Filter
+          </button>
+        </header>
 
-      {/* Render auction items here */}
+        {/* Render auction items here */}
 
-      <FilterModal
-        isOpen={isFilterOpen}
-        selectedCategories={selectedCategories}
-        toggleCategory={toggleCategory}
-        onClose={handleFilterClose}
-        onApply={handleApplyFilters}
-      />
+        <FilterModal
+          isOpen={isFilterOpen} // Pass the isOpen prop
+          selectedCategories={selectedCategories}
+          toggleCategory={toggleCategory}
+          onClose={() => setIsFilterOpen(false)} // Close the modal
+          onApply={handleApplyFilters} // Apply filters
+        />
+      </div>
     </div>
   );
 };

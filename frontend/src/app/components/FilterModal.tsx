@@ -13,13 +13,33 @@ const categories = [
     name: "Photography",
     subcategories: ["Digital cameras", "Lenses", "Photo accessories"],
   },
+  {
+    name: "TVs and accessories",
+    subcategories: ["TVs", "Projectors", "Headphones"],
+  },
+  {
+    name: "Appliances",
+    subcategories: ["Fridges", "Washing machines", "Clothes dryers"],
+  },
 ];
 
 interface FilterModalProps {
+  isOpen: boolean; // Add the isOpen property
+  selectedCategories: string[];
+  toggleCategory: (subcategory: string) => void;
   onClose: () => void;
+  onApply: () => void;
 }
 
-const FilterModal: React.FC<FilterModalProps> = ({ onClose }) => {
+const FilterModal: React.FC<FilterModalProps> = ({
+  isOpen,
+  selectedCategories,
+  toggleCategory,
+  onClose,
+  onApply,
+}) => {
+  if (!isOpen) return null; // Do not render if the modal is not open
+
   return (
     <div
       style={{
@@ -28,11 +48,11 @@ const FilterModal: React.FC<FilterModalProps> = ({ onClose }) => {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.7)", // Darker overlay for better contrast
+        backgroundColor: "rgba(0, 0, 0, 0.7)", // Dark overlay
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 1000, // Ensures the modal is on top of other elements
+        zIndex: 1000, // High z-index for modal
       }}
     >
       <div
@@ -40,24 +60,38 @@ const FilterModal: React.FC<FilterModalProps> = ({ onClose }) => {
           background: "white",
           padding: "30px",
           borderRadius: "12px",
-          maxWidth: "600px",
+          maxWidth: "900px", // Wider for multiple columns
           width: "90%",
-          boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.2)", // Adds shadow for better focus
+          boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.2)", // Subtle shadow
         }}
       >
-        <h2 style={{ marginBottom: "20px", fontSize: "24px", fontWeight: "bold", color: "#333" }}>
-          Select Filters
+        <h2
+          style={{
+            marginBottom: "20px",
+            fontSize: "24px",
+            fontWeight: "bold",
+            color: "#333",
+          }}
+        >
+          Select the category you want to see
         </h2>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "repeat(4, 1fr)", // Four columns
             gap: "20px",
           }}
         >
           {categories.map((category, index) => (
             <div key={index}>
-              <h3 style={{ marginBottom: "10px", fontSize: "18px", color: "#555" }}>
+              <h3
+                style={{
+                  marginBottom: "10px",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  color: "#555",
+                }}
+              >
                 {category.name}
               </h3>
               {category.subcategories.map((subcategory, subIndex) => (
@@ -66,15 +100,18 @@ const FilterModal: React.FC<FilterModalProps> = ({ onClose }) => {
                   style={{
                     display: "block",
                     marginBottom: "8px",
-                    fontSize: "16px",
-                    color: "#444", // Ensure text is easily readable
+                    fontSize: "14px",
+                    color: "#444",
+                    cursor: "pointer",
                   }}
                 >
                   <input
                     type="checkbox"
+                    checked={selectedCategories.includes(subcategory)}
+                    onChange={() => toggleCategory(subcategory)}
                     style={{
                       marginRight: "10px",
-                      transform: "scale(1.2)", // Make checkboxes larger for better visibility
+                      transform: "scale(1.2)", // Larger checkboxes
                       cursor: "pointer",
                     }}
                   />
@@ -88,39 +125,45 @@ const FilterModal: React.FC<FilterModalProps> = ({ onClose }) => {
           style={{
             marginTop: "30px",
             display: "flex",
-            justifyContent: "flex-end",
-            gap: "10px",
+            justifyContent: "space-between", // Space between buttons
+            alignItems: "center",
           }}
         >
-          <button
-            onClick={onClose}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#f0f0f0",
-              color: "#333",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Close
-          </button>
-          <button
-            onClick={() => {
-              console.log("Filters applied");
-              onClose();
-            }}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#0070f3",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Apply
-          </button>
+          <p style={{ fontSize: "16px", color: "#333" }}>
+            Selected categories: {selectedCategories.join(", ") || "None"}
+          </p>
+          <div>
+            <button
+              onClick={onClose}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#f0f0f0",
+                color: "#333",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                cursor: "pointer",
+                marginRight: "10px",
+              }}
+            >
+              Close
+            </button>
+            <button
+              onClick={() => {
+                console.log("Filters applied");
+                onApply();
+              }}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#9e3b54",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Apply
+            </button>
+          </div>
         </div>
       </div>
     </div>

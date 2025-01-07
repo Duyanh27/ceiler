@@ -145,20 +145,54 @@ export default function HomePage() {
       />
 
       {/* Filter Button */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          style={{
-            backgroundColor: "#f3f3f3",
-            padding: "10px 20px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Filter
-        </button>
-      </div>
+      <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px",
+    padding: "10px 20px",
+    borderBottom: "1px solid #eaeaea",
+  }}
+>
+  <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#9e3b54" }}>Filter</h2>
+  <button
+    onClick={() => setIsFilterOpen(true)}
+    style={{
+      display: "flex", // Align icon and text in a row
+      alignItems: "center", // Vertically center content
+      backgroundColor: "#ffffff", // White background
+      color: "#9e3b54", // Text color
+      padding: "8px 12px", // Padding for a compact yet visible button
+      border: "1px solid #e0e0e0", // Border for subtle definition
+      borderRadius: "8px", // Rounded corners
+      fontSize: "14px", // Font size for compact layout
+      fontWeight: "bold", // Emphasize text
+      cursor: "pointer", // Pointer cursor on hover
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+      transition: "background-color 0.3s, box-shadow 0.3s", // Smooth hover effect
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.backgroundColor = "#f9f9f9"; // Light background on hover
+      e.currentTarget.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.15)"; // Deeper shadow on hover
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.backgroundColor = "#ffffff"; // Revert background color
+      e.currentTarget.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)"; // Revert shadow
+    }}
+  >
+    <span style={{ marginRight: "8px", fontSize: "14px" }}>Filter</span>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="#9e3b54" // Icon color matches the text
+      width="16px"
+      height="16px"
+    >
+      <path d="M3 6h18v2H3V6zm4 6h10v2H7v-2zm6 6H9v-2h4v2z" />
+    </svg>
+  </button>
+</div>
 
       {/* Auction List */}
       <div style={{ margin: "50px auto", maxWidth: "1200px", padding: "0 1rem" }}>
@@ -196,8 +230,11 @@ export default function HomePage() {
       {/* Filter Modal */}
       {isFilterOpen && (
         <FilterModal
+          isOpen={isFilterOpen}
+          selectedCategories={[]} // Replace with actual selected categories state
+          toggleCategory={(category: string) => {}} // Replace with actual toggleCategory function
+          onApply={() => {}} // Replace with actual onApply function
           onClose={() => setIsFilterOpen(false)}
-          // Pass any additional props or filters to the modal
         />
       )}
     </>

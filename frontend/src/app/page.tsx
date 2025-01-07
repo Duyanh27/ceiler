@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from './components/navbar'; // Ensure correct path and casing
-import HeroSection from './components/HeroSection';
-import AuctionList from './components/AuctionList';
-import Newsletter from './components/Newsletter';
-import Footer from './components/footer';
+import Navbar from "./components/navbar"; // Ensure correct path and casing
+import HeroSection from "./components/HeroSection";
+import AuctionList from "./components/AuctionList";
+import Newsletter from "./components/Newsletter";
+import Footer from "./components/footer";
 
 const auctionItems = [
   {
@@ -55,7 +55,7 @@ const auctionItems = [
     title: "Classic Car Model",
     image: "/images/car.jpg",
     description: "A vintage classic car model, perfect for collectors.",
-    currentBid: 1_000.0,
+    currentBid: 1000.0,
   },
   {
     id: "8",
@@ -69,14 +69,14 @@ const auctionItems = [
     title: "Antique Necklace",
     image: "/images/necklace.jpg",
     description: "A stunning antique necklace with precious stones.",
-    currentBid: 1_500.0,
+    currentBid: 1500.0,
   },
   {
     id: "10",
     title: "Signed Baseball Memorabilia",
     image: "/images/baseball.jpg",
     description: "A signed baseball from a legendary player.",
-    currentBid: 2_000.0,
+    currentBid: 2000.0,
   },
   {
     id: "11",
@@ -97,21 +97,21 @@ const auctionItems = [
     title: "Rare Book Collection",
     image: "/images/books.jpg",
     description: "A collection of rare first-edition books.",
-    currentBid: 1_800.0,
+    currentBid: 1800.0,
   },
   {
     id: "14",
     title: "Designer Shoes",
     image: "/images/shoes.jpg",
     description: "A pair of designer shoes in pristine condition.",
-    currentBid: 1_200.0,
+    currentBid: 1200.0,
   },
   {
     id: "15",
     title: "Antique Clock",
     image: "/images/clock.jpg",
     description: "An antique clock with a beautiful wooden frame.",
-    currentBid: 2_500.0,
+    currentBid: 2500.0,
   },
 ];
 
@@ -131,49 +131,49 @@ export default function HomePage() {
 
   return (
     <>
-     {/* Navbar */}
-     <Navbar />
+      {/* Navbar */}
+      <Navbar />
 
-{/* Hero Section */}
-<HeroSection
-  headline="Explore Detailed Product Auctions"
-  subheadline="Dive deep into the rarest treasures and start your bidding journey."
-  buttonText="Start Bidding"
-  onButtonClick={() => console.log('Start Bidding clicked')}
-/>
+      {/* Hero Section */}
+      <HeroSection
+        headline="Explore Detailed Product Auctions"
+        subheadline="Dive deep into the rarest treasures and start your bidding journey."
+        buttonText="Start Bidding"
+        onButtonClick={() => console.log("Start Bidding clicked")}
+      />
 
-{/* Auction List */}
-<div style={{ margin: '50px auto', maxWidth: '1200px', padding: '0 1rem' }}>
-  <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Available Auctions</h2>
-  <AuctionList items={currentItems} />
-</div>
+      {/* Auction List */}
+      <div style={{ margin: "50px auto", maxWidth: "1200px", padding: "0 1rem" }}>
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Available Auctions</h2>
+        <AuctionList items={currentItems} />
+      </div>
 
-{/* Pagination */}
-<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-  {Array.from({ length: totalPages }, (_, index) => (
-    <button
-      key={index + 1}
-      onClick={() => handlePageChange(index + 1)}
-      style={{
-        padding: '0.5rem 1rem',
-        margin: '0 5px',
-        backgroundColor: currentPage === index + 1 ? '#0070f3' : '#f3f3f3',
-        color: currentPage === index + 1 ? '#fff' : '#000',
-        border: '1px solid #ddd',
-        borderRadius: '5px',
-        cursor: 'pointer',
-      }}
-    >
-      {index + 1}
-    </button>
-  ))}
-</div>
+      {/* Pagination */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            style={{
+              padding: "0.5rem 1rem",
+              margin: "0 5px",
+              backgroundColor: currentPage === index + 1 ? "#0070f3" : "#f3f3f3",
+              color: currentPage === index + 1 ? "#fff" : "#000",
+              border: "1px solid #ddd",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
 
-{/* Newsletter */}
-<Newsletter />
+      {/* Newsletter */}
+      <Newsletter />
 
-{/* Footer */}
-<Footer />
-</>
-);
+      {/* Footer */}
+      <Footer />
+    </>
+  );
 }

@@ -20,10 +20,9 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
   return (
     <div
       style={{
-        display: "flex",
-        flexWrap: "wrap",
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
         gap: "2rem",
-        justifyContent: "center",
         padding: "2rem",
         maxWidth: "1200px",
         margin: "0 auto",
@@ -33,62 +32,90 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
         <div
           key={item.id}
           style={{
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            padding: "16px",
-            textAlign: "center",
-            width: "250px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            borderRadius: "10px",
+            overflow: "hidden",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
             backgroundColor: "#fff",
             transition: "transform 0.2s ease, box-shadow 0.2s ease",
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.2)";
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLElement).style.transform = "scale(1)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
           }}
         >
           {/* Optimized Image */}
-          <Image
-            src={item.image}
-            alt={item.title}
-            width={250}
-            height={150}
-            style={{
-              width: "100%",
-              height: "150px",
-              objectFit: "cover",
-              borderRadius: "4px",
-            }}
-            priority
-          />
-          {/* Title */}
-          <h3 style={{ marginTop: "1rem", fontSize: "1.2rem", fontWeight: "bold" }}>{item.title}</h3>
-          {/* Current Bid */}
-          <p style={{ margin: "0.5rem 0", fontSize: "1rem", color: "#555" }}>
-            Current Bid: <span style={{ fontWeight: "bold" }}>${item.currentBid.toFixed(2)}</span>
-          </p>
-          {/* View Details Button */}
-          <Link href={`/items/${item.id}`} passHref>
-            <button
+          <div style={{ position: "relative", height: "180px" }}>
+            <Image
+              src={item.image}
+              alt={item.title}
+              layout="fill"
+              objectFit="cover"
               style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#0070f3",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginTop: "1rem",
+                borderTopLeftRadius: "10px",
+                borderTopRightRadius: "10px",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#005bb5")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0070f3")}
+              priority
+            />
+          </div>
+          {/* Content */}
+          <div style={{ padding: "1rem" }}>
+            {/* Title */}
+            <h3
+              style={{
+                fontSize: "1.2rem",
+                fontWeight: "bold",
+                color: "#333",
+                marginBottom: "0.5rem",
+                textAlign: "center",
+              }}
             >
-              View Details
-            </button>
-          </Link>
+              {item.title}
+            </h3>
+            {/* Current Bid */}
+            <p
+              style={{
+                margin: "0.5rem 0",
+                fontSize: "1rem",
+                color: "#666",
+                textAlign: "center",
+              }}
+            >
+              Current Bid:{" "}
+              <span style={{ fontWeight: "bold", color: "#9e3b54" }}>
+                ${item.currentBid.toFixed(2)}
+              </span>
+            </p>
+            {/* View Details Button */}
+            <div style={{ textAlign: "center", marginTop: "1rem" }}>
+              <Link href={`/items/${item.id}`} passHref>
+                <button
+                  style={{
+                    padding: "0.5rem 1.5rem",
+                    backgroundColor: "#9e3b54",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    transition: "background-color 0.3s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#7a2b40")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#9e3b54")
+                  }
+                >
+                  View Details
+                </button>
+              </Link>
+            </div>
+          </div>
         </div>
       ))}
     </div>

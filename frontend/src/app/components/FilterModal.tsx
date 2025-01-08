@@ -140,7 +140,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 border: "1px solid #ccc",
                 borderRadius: "5px",
                 cursor: "pointer",
-                marginRight: "10px",
               }}
             >
               Close

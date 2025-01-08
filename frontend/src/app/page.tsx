@@ -119,9 +119,9 @@ const auctionItems = [
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false); // State for Filter Modal
-  const itemsPerPage = 5;
+  const itemsPerPage = 6; // Display 6 items per page
 
-  // Calculate pagination values
+  // Pagination Logic
   const totalPages = Math.ceil(auctionItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -144,55 +144,55 @@ export default function HomePage() {
         onButtonClick={() => console.log("Start Bidding clicked")}
       />
 
-      {/* Filter Button */}
+      {/* Filter Section */}
       <div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-    padding: "10px 20px",
-    borderBottom: "1px solid #eaeaea",
-  }}
->
-  <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#9e3b54" }}>Filter</h2>
-  <button
-    onClick={() => setIsFilterOpen(true)}
-    style={{
-      display: "flex", // Align icon and text in a row
-      alignItems: "center", // Vertically center content
-      backgroundColor: "#ffffff", // White background
-      color: "#9e3b54", // Text color
-      padding: "8px 12px", // Padding for a compact yet visible button
-      border: "1px solid #e0e0e0", // Border for subtle definition
-      borderRadius: "8px", // Rounded corners
-      fontSize: "14px", // Font size for compact layout
-      fontWeight: "bold", // Emphasize text
-      cursor: "pointer", // Pointer cursor on hover
-      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-      transition: "background-color 0.3s, box-shadow 0.3s", // Smooth hover effect
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.backgroundColor = "#f9f9f9"; // Light background on hover
-      e.currentTarget.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.15)"; // Deeper shadow on hover
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.backgroundColor = "#ffffff"; // Revert background color
-      e.currentTarget.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)"; // Revert shadow
-    }}
-  >
-    <span style={{ marginRight: "8px", fontSize: "14px" }}>Filter</span>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="#9e3b54" // Icon color matches the text
-      width="16px"
-      height="16px"
-    >
-      <path d="M3 6h18v2H3V6zm4 6h10v2H7v-2zm6 6H9v-2h4v2z" />
-    </svg>
-  </button>
-</div>
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+          padding: "10px 20px",
+          borderBottom: "1px solid #eaeaea",
+        }}
+      >
+        <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>Filters</h2>
+        <button
+          onClick={() => setIsFilterOpen(true)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            backgroundColor: "#ffffff",
+            color: "#0070f3",
+            padding: "8px 12px",
+            border: "1px solid #e0e0e0",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            transition: "background-color 0.3s, box-shadow 0.3s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#f9f9f9";
+            e.currentTarget.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.15)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#ffffff";
+            e.currentTarget.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)";
+          }}
+        >
+          <span style={{ marginRight: "8px" }}>Open Filters</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="#0070f3"
+            width="16px"
+            height="16px"
+          >
+            <path d="M3 6h18v2H3V6zm4 6h10v2H7v-2zm6 6H9v-2h4v2z" />
+          </svg>
+        </button>
+      </div>
 
       {/* Auction List */}
       <div style={{ margin: "50px auto", maxWidth: "1200px", padding: "0 1rem" }}>
@@ -201,25 +201,54 @@ export default function HomePage() {
       </div>
 
       {/* Pagination */}
-      <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => handlePageChange(index + 1)}
-            style={{
-              padding: "0.5rem 1rem",
-              margin: "0 5px",
-              backgroundColor: currentPage === index + 1 ? "#0070f3" : "#f3f3f3",
-              color: currentPage === index + 1 ? "#fff" : "#000",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      <div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "20px",
+    gap: "10px",
+  }}
+>
+  {Array.from({ length: 10 }, (_, index) => {
+    const pageNumber = index + 1;
+    const isActive = currentPage === pageNumber;
+
+    const showPage =
+      pageNumber === 1 ||
+      pageNumber === 10 ||
+      Math.abs(pageNumber - currentPage) <= 1;
+
+    if (!showPage) {
+      if (
+        pageNumber === currentPage - 2 ||
+        pageNumber === currentPage + 2
+      ) {
+        return <span key={pageNumber}>...</span>;
+      }
+      return null;
+    }
+
+    return (
+      <button
+        key={pageNumber}
+        onClick={() => handlePageChange(pageNumber)}
+        style={{
+          padding: "0.5rem 1rem",
+          border: "none",
+          borderRadius: "8px",
+          backgroundColor: isActive ? "#f9f3f3" : "transparent",
+          color: isActive ? "#9e3b54" : "#c5a3b0",
+          fontWeight: isActive ? "bold" : "normal",
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+        }}
+      >
+        {pageNumber}
+      </button>
+    );
+  })}
+</div>
 
       {/* Newsletter */}
       <Newsletter />
@@ -231,10 +260,10 @@ export default function HomePage() {
       {isFilterOpen && (
         <FilterModal
           isOpen={isFilterOpen}
-          selectedCategories={[]} // Replace with actual selected categories state
-          toggleCategory={(category: string) => {}} // Replace with actual toggleCategory function
-          onApply={() => {}} // Replace with actual onApply function
-          onClose={() => setIsFilterOpen(false)}
+          selectedCategories={[]} // Pass in actual filter state if implemented
+          toggleCategory={(category: string) => {}} // Pass toggle logic for filters
+          onApply={() => setIsFilterOpen(false)} // Close modal after applying
+          onClose={() => setIsFilterOpen(false)} // Close modal
         />
       )}
     </>

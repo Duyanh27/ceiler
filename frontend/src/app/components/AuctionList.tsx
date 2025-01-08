@@ -1,4 +1,4 @@
-"use client"; // Ensure client-side rendering
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -25,36 +25,32 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
     <div
       style={{
         display: "grid",
-<<<<<<< HEAD
         gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-=======
-        gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
->>>>>>> 7365f367ba8e00ebbf017bf563cb13f9aae01597
         gap: "1.5rem",
         padding: "2rem",
+        maxWidth: "1200px",
+        margin: "0 auto",
       }}
     >
       {items.map((item) => (
         <div
           key={item.id}
           style={{
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            padding: "16px",
-            textAlign: "center",
+            borderRadius: "10px",
+            overflow: "hidden",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
             backgroundColor: "#fff",
-            transition: "transform 0.2s, box-shadow 0.2s",
+            transition: "transform 0.2s ease, box-shadow 0.2s ease",
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 16px rgba(0, 0, 0, 0.2)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.2)";
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLElement).style.transform = "scale(1)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
           }}
         >
-<<<<<<< HEAD
           {/* Image Section */}
           <div style={{ position: "relative", height: "180px" }}>
             <Image
@@ -137,38 +133,6 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
               </Link>
             </div>
           </div>
-=======
-          <Image
-            src={item.image}
-            alt={item.title}
-            width={250}
-            height={150}
-            style={{
-              width: "100%",
-              height: "150px",
-              objectFit: "cover",
-              borderRadius: "4px",
-            }}
-            priority
-          />
-          <h3 style={{ marginTop: "1rem", fontSize: "1.2rem", fontWeight: "bold" }}>{item.title}</h3>
-          <p style={{ color: "#0070f3", fontWeight: "bold" }}>${item.currentBid.toFixed(2)}</p>
-          <Link href={`/auction/${item.id}`} passHref>
-            <button
-              style={{
-                marginTop: "1rem",
-                padding: "0.5rem 1rem",
-                backgroundColor: "#0070f3",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              View Details
-            </button>
-          </Link>
->>>>>>> 7365f367ba8e00ebbf017bf563cb13f9aae01597
         </div>
       ))}
     </div>

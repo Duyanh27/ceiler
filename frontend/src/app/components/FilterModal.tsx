@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const categories = [
   {
@@ -24,7 +24,7 @@ const categories = [
 ];
 
 interface FilterModalProps {
-  isOpen: boolean; // Add the isOpen property
+  isOpen: boolean;
   selectedCategories: string[];
   toggleCategory: (subcategory: string) => void;
   onClose: () => void;
@@ -38,7 +38,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   onClose,
   onApply,
 }) => {
-  if (!isOpen) return null; // Do not render if the modal is not open
+  if (!isOpen) return null; // Do not render if modal is closed
 
   return (
     <div
@@ -48,21 +48,21 @@ const FilterModal: React.FC<FilterModalProps> = ({
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.7)", // Dark overlay
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 1000, // High z-index for modal
+        zIndex: 1000,
       }}
     >
       <div
         style={{
-          background: "white",
+          backgroundColor: "white",
           padding: "30px",
           borderRadius: "12px",
-          maxWidth: "900px", // Wider for multiple columns
+          maxWidth: "900px",
           width: "90%",
-          boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.2)", // Subtle shadow
+          boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.2)",
         }}
       >
         <h2
@@ -78,7 +78,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)", // Four columns
+            gridTemplateColumns: "repeat(3, 1fr)", // 3 columns
             gap: "20px",
           }}
         >
@@ -102,7 +102,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
                     marginBottom: "8px",
                     fontSize: "14px",
                     color: "#444",
-                    cursor: "pointer",
                   }}
                 >
                   <input
@@ -111,8 +110,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                     onChange={() => toggleCategory(subcategory)}
                     style={{
                       marginRight: "10px",
-                      transform: "scale(1.2)", // Larger checkboxes
-                      cursor: "pointer",
+                      transform: "scale(1.2)",
                     }}
                   />
                   {subcategory}
@@ -125,7 +123,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
           style={{
             marginTop: "30px",
             display: "flex",
-            justifyContent: "space-between", // Space between buttons
+            justifyContent: "space-between",
             alignItems: "center",
           }}
         >
@@ -148,10 +146,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
               Close
             </button>
             <button
-              onClick={() => {
-                console.log("Filters applied");
-                onApply();
-              }}
+              onClick={onApply}
               style={{
                 padding: "10px 20px",
                 backgroundColor: "#9e3b54",

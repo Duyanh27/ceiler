@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from "react";
-import Navbar from './components/navbar'; // Ensure correct path and casing
+import Navbar from './components/navbar';
 import HeroSection from './components/HeroSection';
 import AuctionList from './components/AuctionList';
 import Newsletter from './components/Newsletter';
 import Footer from './components/footer';
-import FilterModal from './components/FilterModal'; // Add this to handle the modal
+import FilterModal from './components/FilterModal';
 
 const auctionItems = [
   {
@@ -15,6 +15,10 @@ const auctionItems = [
     image: "/images/vase.jpg",
     description: "A rare antique vase from the 19th century.",
     currentBid: 150.0,
+    price: 300.0,
+    bids: 3,
+    seller: "Antique Trader",
+    timeLeft: "4d 20h",
   },
   {
     id: "2",
@@ -22,6 +26,10 @@ const auctionItems = [
     image: "/images/watch.jpg",
     description: "A timeless vintage watch in pristine condition.",
     currentBid: 250.0,
+    price: 500.0,
+    bids: 5,
+    seller: "Vintage Collector",
+    timeLeft: "3d 10h",
   },
   {
     id: "3",
@@ -29,6 +37,10 @@ const auctionItems = [
     image: "/images/painting.jpg",
     description: "An exquisite painting by a renowned artist.",
     currentBid: 500.0,
+    price: 1000.0,
+    bids: 8,
+    seller: "Art Gallery",
+    timeLeft: "2d 8h",
   },
   {
     id: "4",
@@ -36,6 +48,10 @@ const auctionItems = [
     image: "/images/coins.jpg",
     description: "A collection of rare coins from around the world.",
     currentBid: 750.0,
+    price: 1200.0,
+    bids: 6,
+    seller: "Coin Enthusiast",
+    timeLeft: "1d 15h",
   },
   {
     id: "5",
@@ -43,6 +59,10 @@ const auctionItems = [
     image: "/images/chair.jpg",
     description: "A beautifully handcrafted wooden chair with intricate details.",
     currentBid: 300.0,
+    price: 500.0,
+    bids: 2,
+    seller: "Furniture Crafter",
+    timeLeft: "5d 3h",
   },
   {
     id: "6",
@@ -50,6 +70,10 @@ const auctionItems = [
     image: "/images/handbag.jpg",
     description: "A designer luxury leather handbag in excellent condition.",
     currentBid: 850.0,
+    price: 1500.0,
+    bids: 10,
+    seller: "Fashion Boutique",
+    timeLeft: "6d 12h",
   },
   {
     id: "7",
@@ -57,6 +81,10 @@ const auctionItems = [
     image: "/images/car.jpg",
     description: "A vintage classic car model, perfect for collectors.",
     currentBid: 1000.0,
+    price: 2000.0,
+    bids: 12,
+    seller: "Car Enthusiast",
+    timeLeft: "4d 6h",
   },
   {
     id: "8",
@@ -64,6 +92,10 @@ const auctionItems = [
     image: "/images/camera.jpg",
     description: "A vintage camera in working condition, perfect for enthusiasts.",
     currentBid: 400.0,
+    price: 800.0,
+    bids: 4,
+    seller: "Photographer's Haven",
+    timeLeft: "3d 18h",
   },
   {
     id: "9",
@@ -71,6 +103,10 @@ const auctionItems = [
     image: "/images/necklace.jpg",
     description: "A stunning antique necklace with precious stones.",
     currentBid: 1500.0,
+    price: 3000.0,
+    bids: 15,
+    seller: "Jewelry Trader",
+    timeLeft: "2d 5h",
   },
   {
     id: "10",
@@ -78,65 +114,44 @@ const auctionItems = [
     image: "/images/baseball.jpg",
     description: "A signed baseball from a legendary player.",
     currentBid: 2000.0,
-  },
-  {
-    id: "11",
-    title: "Handmade Quilt",
-    image: "/images/quilt.jpg",
-    description: "A beautiful handmade quilt with intricate patterns.",
-    currentBid: 350.0,
-  },
-  {
-    id: "12",
-    title: "Vintage Typewriter",
-    image: "/images/typewriter.jpg",
-    description: "A vintage typewriter in excellent working condition.",
-    currentBid: 600.0,
-  },
-  {
-    id: "13",
-    title: "Rare Book Collection",
-    image: "/images/books.jpg",
-    description: "A collection of rare first-edition books.",
-    currentBid: 1800.0,
-  },
-  {
-    id: "14",
-    title: "Designer Shoes",
-    image: "/images/shoes.jpg",
-    description: "A pair of designer shoes in pristine condition.",
-    currentBid: 1200.0,
-  },
-  {
-    id: "15",
-    title: "Antique Clock",
-    image: "/images/clock.jpg",
-    description: "An antique clock with a beautiful wooden frame.",
-    currentBid: 2500.0,
+    price: 4000.0,
+    bids: 18,
+    seller: "Sports Memorabilia",
+    timeLeft: "1d 8h",
   },
 ];
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [isFilterOpen, setIsFilterOpen] = useState(false); // State for Filter Modal
-  const itemsPerPage = 6; // Display 6 items per page
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [priceRange, setPriceRange] = useState([0, 2000]); // Default price range
+  const itemsPerPage = 6;
 
   // Pagination Logic
   const totalPages = Math.ceil(auctionItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = auctionItems.slice(startIndex, endIndex);
+
+  // Filter items based on price range
+  const filteredItems = auctionItems.filter(
+    (item) => item.price >= priceRange[0] && item.price <= priceRange[1]
+  );
+
+  const currentItems = filteredItems.slice(startIndex, endIndex);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
+  const handlePriceChange = (min: number, max: number) => {
+    setPriceRange([min, max]);
+    setCurrentPage(1); // Reset to first page on filter change
+  };
+
   return (
     <>
-      {/* Navbar */}
       <Navbar />
 
-      {/* Hero Section */}
       <HeroSection
         headline="Explore Detailed Product Auctions"
         subheadline="Dive deep into the rarest treasures and start your bidding journey."
@@ -156,6 +171,31 @@ export default function HomePage() {
         }}
       >
         <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>Filters</h2>
+
+        {/* Price Filter Bar */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span>Price: </span>
+          <input
+            type="range"
+            min="0"
+            max="2000"
+            value={priceRange[0]}
+            onChange={(e) => handlePriceChange(Number(e.target.value), priceRange[1])}
+            style={{ width: "150px" }}
+          />
+          <input
+            type="range"
+            min="0"
+            max="2000"
+            value={priceRange[1]}
+            onChange={(e) => handlePriceChange(priceRange[0], Number(e.target.value))}
+            style={{ width: "150px" }}
+          />
+          <span>
+            ${priceRange[0]} - ${priceRange[1]}
+          </span>
+        </div>
+
         <button
           onClick={() => setIsFilterOpen(true)}
           style={{
@@ -170,27 +210,9 @@ export default function HomePage() {
             fontWeight: "bold",
             cursor: "pointer",
             boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-            transition: "background-color 0.3s, box-shadow 0.3s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#f9f9f9";
-            e.currentTarget.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.15)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#ffffff";
-            e.currentTarget.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)";
           }}
         >
-          <span style={{ marginRight: "8px" }}>Open Filters</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="#0070f3"
-            width="16px"
-            height="16px"
-          >
-            <path d="M3 6h18v2H3V6zm4 6h10v2H7v-2zm6 6H9v-2h4v2z" />
-          </svg>
+          <span style={{ marginRight: "8px" }}>More Filters</span>
         </button>
       </div>
 
@@ -202,68 +224,43 @@ export default function HomePage() {
 
       {/* Pagination */}
       <div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: "20px",
-    gap: "10px",
-  }}
->
-  {Array.from({ length: 10 }, (_, index) => {
-    const pageNumber = index + 1;
-    const isActive = currentPage === pageNumber;
-
-    const showPage =
-      pageNumber === 1 ||
-      pageNumber === 10 ||
-      Math.abs(pageNumber - currentPage) <= 1;
-
-    if (!showPage) {
-      if (
-        pageNumber === currentPage - 2 ||
-        pageNumber === currentPage + 2
-      ) {
-        return <span key={pageNumber}>...</span>;
-      }
-      return null;
-    }
-
-    return (
-      <button
-        key={pageNumber}
-        onClick={() => handlePageChange(pageNumber)}
         style={{
-          padding: "0.5rem 1rem",
-          border: "none",
-          borderRadius: "8px",
-          backgroundColor: isActive ? "#f9f3f3" : "transparent",
-          color: isActive ? "#9e3b54" : "#c5a3b0",
-          fontWeight: isActive ? "bold" : "normal",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "20px",
+          gap: "10px",
         }}
       >
-        {pageNumber}
-      </button>
-    );
-  })}
-</div>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            style={{
+              padding: "10px 15px",
+              border: "none",
+              borderRadius: "8px",
+              backgroundColor: currentPage === index + 1 ? "#f9f3f3" : "transparent",
+              color: currentPage === index + 1 ? "#9e3b54" : "#c5a3b0",
+              fontWeight: currentPage === index + 1 ? "bold" : "normal",
+              cursor: "pointer",
+            }}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
 
-      {/* Newsletter */}
       <Newsletter />
-
-      {/* Footer */}
       <Footer />
 
-      {/* Filter Modal */}
       {isFilterOpen && (
         <FilterModal
           isOpen={isFilterOpen}
-          selectedCategories={[]} // Pass in actual filter state if implemented
-          toggleCategory={(category: string) => {}} // Pass toggle logic for filters
-          onApply={() => setIsFilterOpen(false)} // Close modal after applying
-          onClose={() => setIsFilterOpen(false)} // Close modal
+          selectedCategories={[]}
+          toggleCategory={(category: string) => {}}
+          onApply={() => setIsFilterOpen(false)}
+          onClose={() => setIsFilterOpen(false)}
         />
       )}
     </>

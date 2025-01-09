@@ -1,66 +1,174 @@
-import { Webhook } from "svix";
+import { Webhook } from 'svix';
+import User from '../models/user.model.js';
 
 export const handleWebhookEvent = async (req, res) => {
     const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
     if (!SIGNING_SECRET) {
-      throw new Error('Error: Please add SIGNING_SECRET from Clerk Dashboard to .env');
+        return res.status(500).json({
+            success: false,
+            message: 'Error: Please add SIGNING_SECRET from Clerk Dashboard to .env'
+        });
     }
 
-    // Create new Svix instance with secret
     const wh = new Webhook(SIGNING_SECRET);
-
-    // Get headers
     const headers = req.headers;
+    
+    // Get Svix headers
     const svix_id = headers['svix-id'];
     const svix_timestamp = headers['svix-timestamp'];
     const svix_signature = headers['svix-signature'];
 
-    // If there are no headers, error out
     if (!svix_id || !svix_timestamp || !svix_signature) {
-      return void res.status(400).json({
-        success: false,
-        message: 'Error: Missing svix headers',
-      });
+        return res.status(400).json({
+            success: false,
+            message: 'Error: Missing svix headers'
+        });
     }
-
-    let evt;
 
     try {
-      // Convert raw body to string if it isn't already
-      const rawBody = req.body.toString('utf8');
-      const jsonBody = JSON.parse(rawBody);
-      
-      evt = wh.verify(rawBody, {
-        'svix-id': svix_id,
-        'svix-timestamp': svix_timestamp,
-        'svix-signature': svix_signature,
-      });
+        // Verify webhook
+        const rawBody = req.body.toString('utf8');
+        const jsonBody = JSON.parse(rawBody);
+        
+        const evt = await wh.verify(rawBody, {
+            'svix-id': svix_id,
+            'svix-timestamp': svix_timestamp,
+            'svix-signature': svix_signature,
+        });
 
-      // Use the parsed JSON for your business logic
-      const { id } = jsonBody;
-      const eventType = jsonBody.type;
-      
-      console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
-      console.log('Webhook payload:', jsonBody);
-
-      if (eventType === 'user.created') {
-        console.log('userId:', jsonBody.data.id);
-      }
-
+        // Handle different event types
+        switch (jsonBody.type) {
+            case 'user.created':
+                return handleUserCreated(jsonBody.data, res);
+            case 'user.updated':
+                return handleUserUpdated(jsonBody.data, res);
+            case 'user.deleted':
+                return handleUserDeleted(jsonBody.data, res);
+            default:
+                console.log('Unhandled event type:', jsonBody.type);
+                return res.status(200).json({
+                    success: true,
+                    message: 'Webhook received'
+                });
+        }
     } catch (err) {
-      console.log('Error: Could not verify webhook:', err.message);
-      return void res.status(400).json({
-        success: false,
-        message: err.message,
-      });
+        console.log('Error: Could not verify webhook:', err.message);
+        return res.status(400).json({
+            success: false,
+            message: err.message
+        });
     }
-
-    return void res.status(200).json({
-      success: true,
-      message: 'Webhook received',
-    });
 };
+
+async function handleUserCreated(data, res) {
+    try {
+        const { id, email_addresses, username } = data;
+
+        if (!id || !email_addresses?.length) {
+            return res.status(400).json({ error: 'Missing required user data' });
+        }
+
+        const newUser = await User.create({
+            clerkId: id,
+            email: email_addresses[0].email_address,
+            name: username || 'New User',
+            walletBalance: 0,
+            activeBids: [],
+            wonAuctions: [],
+            notifications: []
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: 'User created successfully',
+            userId: newUser._id
+        });
+    } catch (error) {
+        console.error('Error creating user:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error creating user'
+        });
+    }
+}
+
+async function handleUserUpdated(data, res) {
+    try {
+        const { id, email_addresses, username, image_url } = data;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing user ID'
+            });
+        }
+
+        const updateData = {};
+        if (email_addresses?.[0]?.email_address) updateData.email = email_addresses[0].email_address;
+        if (username) updateData.username = username;
+        if (image_url) updateData.profileImage = image_url;
+
+        const updatedUser = await User.findOneAndUpdate(
+            { clerkId: id },
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'User updated successfully',
+            updatedFields: updateData
+        });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error updating user'
+        });
+    }
+}
+
+async function handleUserDeleted(data, res) {
+    try {
+        const { id } = data;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing user ID'
+            });
+        }
+
+        const deletedUser = await User.findOneAndDelete({ clerkId: id });
+        
+        if (!deletedUser) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'User deleted successfully',
+            userId: deletedUser._id
+        });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error deleting user'
+        });
+    }
+}
 
 export default {
     handleWebhookEvent

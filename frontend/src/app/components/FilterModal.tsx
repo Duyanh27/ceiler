@@ -3,23 +3,29 @@ import React from "react";
 const categories = [
   {
     name: "Electronics",
-    subcategories: ["Smartphones", "Smartwatches", "Tablets"],
+    subcategories: ["Smartphones", "Smartwatches", "Tablets", "Accessories GSM", "Cases and covers"],
   },
   {
     name: "Computers",
-    subcategories: ["Laptops", "Laptop components", "Desktop Computers"],
-  },
-  {
-    name: "Photography",
-    subcategories: ["Digital cameras", "Lenses", "Photo accessories"],
+    subcategories: [
+      "Laptops",
+      "Laptop components",
+      "Desktop Computers",
+      "Computer components",
+      "Printers and scanners",
+    ],
   },
   {
     name: "TVs and accessories",
-    subcategories: ["TVs", "Projectors", "Headphones"],
+    subcategories: ["TVs", "Projectors", "Headphones", "Audio for home", "Home cinema"],
+  },
+  {
+    name: "Photography",
+    subcategories: ["Digital cameras", "Lenses", "Photo accessories", "Instant cameras (Instax, Polaroid)"],
   },
   {
     name: "Appliances",
-    subcategories: ["Fridges", "Washing machines", "Clothes dryers"],
+    subcategories: ["Fridges", "Washing machines", "Clothes dryers", "Free-standing kitchens"],
   },
 ];
 
@@ -38,7 +44,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   onClose,
   onApply,
 }) => {
-  if (!isOpen) return null; // Don't render the modal if it is not open
+  if (!isOpen) return null;
 
   return (
     <div
@@ -48,7 +54,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.7)", // Dimmed background
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -62,7 +68,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
           borderRadius: "12px",
           maxWidth: "900px",
           width: "90%",
-          boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.2)",
+          boxShadow: "0 8px 15px rgba(0, 0, 0, 0.3)",
         }}
       >
         <h2
@@ -78,7 +84,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)", // Three columns
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             gap: "20px",
           }}
         >
@@ -89,7 +95,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   marginBottom: "10px",
                   fontSize: "18px",
                   fontWeight: "bold",
-                  color: "#555",
+                  color: "#4a5568",
                 }}
               >
                 {category.name}
@@ -98,19 +104,23 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 <label
                   key={subIndex}
                   style={{
-                    display: "block",
+                    display: "flex",
+                    alignItems: "center",
                     marginBottom: "8px",
                     fontSize: "14px",
-                    color: "#444",
+                    color: "#555",
+                    cursor: "pointer",
                   }}
                 >
                   <input
                     type="checkbox"
                     checked={selectedCategories.includes(subcategory)}
-                    onChange={() => toggleCategory(subcategory)} // Toggle category on change
+                    onChange={() => toggleCategory(subcategory)}
                     style={{
                       marginRight: "10px",
-                      transform: "scale(1.2)", // Larger checkboxes
+                      width: "18px",
+                      height: "18px",
+                      accentColor: "#9e3b54", // Custom checkbox color
                     }}
                   />
                   {subcategory}
@@ -130,7 +140,22 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <p style={{ fontSize: "16px", color: "#333" }}>
             Selected categories:{" "}
             {selectedCategories.length > 0
-              ? selectedCategories.join(", ")
+              ? selectedCategories.map((cat) => (
+                  <span
+                    key={cat}
+                    style={{
+                      display: "inline-block",
+                      backgroundColor: "#f5f5f5",
+                      color: "#333",
+                      padding: "5px 10px",
+                      borderRadius: "20px",
+                      marginRight: "8px",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {cat}
+                  </span>
+                ))
               : "None"}
           </p>
           <div>
@@ -138,9 +163,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
               onClick={onClose}
               style={{
                 padding: "10px 20px",
-                backgroundColor: "#f0f0f0",
-                color: "#333",
-                border: "1px solid #ccc",
+                backgroundColor: "#e2e8f0",
+                color: "#4a5568",
+                border: "1px solid #cbd5e0",
                 borderRadius: "5px",
                 cursor: "pointer",
                 marginRight: "10px",
@@ -157,6 +182,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 border: "none",
                 borderRadius: "5px",
                 cursor: "pointer",
+                fontWeight: "bold",
               }}
             >
               Apply

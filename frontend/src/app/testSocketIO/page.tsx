@@ -17,6 +17,8 @@ export default function BidPage() {
   const [newBid, setNewBid] = useState<number | "">(""); // Default to an empty string for numeric inputs
   const [bids, setBids] = useState<BidData[]>([]);
 
+  
+  
   useEffect(() => {
     const socket = getSocket();
 

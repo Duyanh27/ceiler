@@ -7,6 +7,7 @@ import {
   deleteItem,
   bidItem,
 } from "../controller/item.controller.js";
+import { requireAuth } from "@clerk/express";
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.put("/:id", updateItem); // Update an item by ID
 router.delete("/:id", deleteItem); // Delete an item by ID
 
 // Bidding route - Ensure the `io` instance is passed
-router.post("/auctions/:id/bid", (req, res) => {
+router.post("/auctions/:id/bid", requireAuth(), (req, res) => {
   const io = req.io; // Access the `io` instance attached in middleware
   bidItem(io)(req, res); // Pass `io` to the `bidItem` controller
 });

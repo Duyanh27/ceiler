@@ -13,3 +13,4 @@ bidSchema.index({ itemId : 1 });
 const Bid = mongoose.model('Bid', bidSchema);
 
 export default Bid;
+

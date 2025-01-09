@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import userRoutes from "./routes/user.route.js"; // Import user routes
 import itemRoutes from "./routes/item.route.js";
+import webhookRoutes from "./routes/webhook.route.js";
 import { clerkMiddleware, requireAuth } from "@clerk/express"; // Clerk middleware
 import "dotenv/config";
 import http from "http"; // Required to attach Socket.IO to the server
@@ -24,8 +25,16 @@ const io = new Server(server, {
   },
 });
 
+// Important: Place webhook routes before any middleware that parses the body
+app.use("/api/webhooks", webhookRoutes);
+
 // Apply Clerk middleware globally to check for valid sessions
-app.use(clerkMiddleware());
+app.use((req, res, next) => {
+    if (req.path === '/api/webhooks') {
+        return next();
+    }
+    return clerkMiddleware()(req, res, next);
+});
 
 // Middleware to parse JSON data in the request body
 app.use(express.json());

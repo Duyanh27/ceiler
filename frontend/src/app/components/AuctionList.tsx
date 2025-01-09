@@ -24,18 +24,25 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
   return (
     <div
       style={{
-        backgroundColor: "#f9fafc", // Bright background
-        padding: "2rem",
+        backgroundColor: "#f3f4f6", // Light background for the auction section
+        padding: "3rem 1.5rem",
         fontFamily: "Arial, sans-serif",
       }}
     >
       {/* Section Header */}
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2.5rem", fontWeight: "bold", color: "#4a90e2" }}>
+      <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <h1
+          style={{
+            fontSize: "2.8rem",
+            fontWeight: "bold",
+            color: "#1e40af",
+            marginBottom: "0.5rem",
+          }}
+        >
           Explore Amazing Auctions
         </h1>
-        <p style={{ fontSize: "1rem", color: "#6b7280" }}>
-          Discover unique treasures and start bidding today!
+        <p style={{ fontSize: "1rem", color: "#64748b" }}>
+          Browse our collection of rare treasures and exciting items. Bid now!
         </p>
       </div>
 
@@ -44,7 +51,7 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "1.5rem",
+          gap: "2rem",
           maxWidth: "1200px",
           margin: "0 auto",
         }}
@@ -55,19 +62,19 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
             style={{
               borderRadius: "12px",
               overflow: "hidden",
-              boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)", // Modern shadow
-              backgroundColor: "#ffffff", // Bright card background
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)", // Soft shadow
+              backgroundColor: "#ffffff", // Card background
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.transform = "translateY(-10px)";
               (e.currentTarget as HTMLElement).style.boxShadow =
-                "0 15px 25px rgba(0, 0, 0, 0.2)";
+                "0 15px 30px rgba(0, 0, 0, 0.2)";
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
               (e.currentTarget as HTMLElement).style.boxShadow =
-                "0 8px 15px rgba(0, 0, 0, 0.1)";
+                "0 8px 20px rgba(0, 0, 0, 0.1)";
             }}
           >
             {/* Image Section */}
@@ -82,14 +89,15 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
             </div>
 
             {/* Content Section */}
-            <div style={{ padding: "1rem" }}>
+            <div style={{ padding: "1.5rem" }}>
               {/* Title */}
               <h3
                 style={{
-                  fontSize: "1.2rem",
+                  fontSize: "1.3rem",
                   fontWeight: "bold",
-                  color: "#334155",
+                  color: "#1f2937",
                   textAlign: "center",
+                  marginBottom: "0.5rem",
                 }}
               >
                 {item.title}
@@ -100,12 +108,12 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
                 style={{
                   margin: "0.5rem 0",
                   fontSize: "1rem",
-                  color: "#4a5568",
+                  color: "#4b5563",
                   textAlign: "center",
                 }}
               >
                 Current Bid:{" "}
-                <span style={{ fontWeight: "bold", color: "#f56565" }}>
+                <span style={{ fontWeight: "bold", color: "#ef4444" }}>
                   ${item.currentBid.toFixed(2)}
                 </span>
               </p>
@@ -114,7 +122,7 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
               <div
                 style={{
                   fontSize: "0.9rem",
-                  color: "#718096",
+                  color: "#6b7280",
                   marginTop: "0.5rem",
                   textAlign: "center",
                 }}
@@ -129,22 +137,22 @@ const AuctionList: React.FC<AuctionListProps> = ({ items }) => {
                 <Link href={`/items/${item.id}`} passHref>
                   <button
                     style={{
-                      padding: "0.5rem 1.5rem",
-                      backgroundColor: "#4a90e2",
+                      padding: "0.75rem 1.5rem",
+                      backgroundColor: "#1e40af",
                       color: "white",
                       border: "none",
                       borderRadius: "25px",
                       cursor: "pointer",
                       fontSize: "1rem",
                       fontWeight: "bold",
-                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
                       transition: "background-color 0.3s, box-shadow 0.3s",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.backgroundColor = "#357ABD")
+                      (e.currentTarget.style.backgroundColor = "#1e3a8a")
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor = "#4a90e2")
+                      (e.currentTarget.style.backgroundColor = "#1e40af")
                     }
                   >
                     View Details

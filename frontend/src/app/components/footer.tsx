@@ -3,16 +3,6 @@ import React from "react";
 const Footer: React.FC = () => {
   return (
     <footer style={styles.footer}>
-      {/* Newsletter Section */}
-      <div style={styles.newsletterSection}>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          style={styles.input}
-        />
-        <button style={styles.subscribeButton}>Subscribe</button>
-      </div>
-
       {/* Description */}
       <div style={styles.description}>
         <p>Join online auctions and find unique items to buy and sell with excitement!</p>
@@ -102,30 +92,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#8a2b2b",
     fontFamily: "Arial, sans-serif",
     padding: "2rem 1rem",
-  },
-  newsletterSection: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "1rem",
-    marginBottom: "2rem",
-  },
-  input: {
-    padding: "0.8rem 1rem",
-    borderRadius: "5px",
-    border: "1px solid #ddd",
-    width: "300px",
-    fontSize: "1rem",
-  },
-  subscribeButton: {
-    backgroundColor: "#4a90e2",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    padding: "0.8rem 1.5rem",
-    fontSize: "1rem",
-    cursor: "pointer",
-    transition: "background-color 0.3s ease",
   },
   description: {
     textAlign: "center",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const categories = [
   {
@@ -38,7 +38,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   onClose,
   onApply,
 }) => {
-  if (!isOpen) return null; // Do not render if modal is closed
+  if (!isOpen) return null; // Don't render the modal if it is not open
 
   return (
     <div
@@ -48,7 +48,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        backgroundColor: "rgba(0, 0, 0, 0.7)", // Dimmed background
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -78,7 +78,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)", // 3 columns
+            gridTemplateColumns: "repeat(3, 1fr)", // Three columns
             gap: "20px",
           }}
         >
@@ -107,10 +107,10 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   <input
                     type="checkbox"
                     checked={selectedCategories.includes(subcategory)}
-                    onChange={() => toggleCategory(subcategory)}
+                    onChange={() => toggleCategory(subcategory)} // Toggle category on change
                     style={{
                       marginRight: "10px",
-                      transform: "scale(1.2)",
+                      transform: "scale(1.2)", // Larger checkboxes
                     }}
                   />
                   {subcategory}
@@ -128,7 +128,10 @@ const FilterModal: React.FC<FilterModalProps> = ({
           }}
         >
           <p style={{ fontSize: "16px", color: "#333" }}>
-            Selected categories: {selectedCategories.join(", ") || "None"}
+            Selected categories:{" "}
+            {selectedCategories.length > 0
+              ? selectedCategories.join(", ")
+              : "None"}
           </p>
           <div>
             <button
@@ -140,6 +143,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 border: "1px solid #ccc",
                 borderRadius: "5px",
                 cursor: "pointer",
+                marginRight: "10px",
               }}
             >
               Close

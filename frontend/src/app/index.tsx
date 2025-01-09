@@ -1,48 +1,78 @@
-import React, { useState } from "react";
-import FilterModal from "./components/FilterModal";
+"use client"; // Make sure this is added for React components in Next.js with client-side interactions
 
-const HomePage: React.FC = () => {
+import React, { useState } from "react";
+import FilterModal from "./components/FilterModal"; // Adjust the path if necessary
+
+const Home: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
+  // Function to toggle category
   const toggleCategory = (subcategory: string) => {
     setSelectedCategories((prev) =>
       prev.includes(subcategory)
-        ? prev.filter((item) => item !== subcategory)
-        : [...prev, subcategory]
+        ? prev.filter((cat) => cat !== subcategory) // Remove if already selected
+        : [...prev, subcategory] // Add if not selected
     );
   };
 
-  const handleApplyFilters = () => {
-    console.log("Selected categories:", selectedCategories);
-    setIsFilterOpen(false); // Close the modal after applying filters
+  // Apply button handler
+  const handleApply = () => {
+    console.log("Selected Categories:", selectedCategories);
+    setIsFilterOpen(false); // Close the modal
   };
 
   return (
-    <div>
-      <div className="p-6">
-        <header className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Ongoing Auctions</h1>
-          <button
-            onClick={() => setIsFilterOpen(true)}
-            className="bg-gray-200 px-4 py-2 rounded border border-gray-400"
-          >
-            Filter
-          </button>
-        </header>
+    <main
+      style={{
+        padding: "20px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+      }}
+    >
+      <h1
+        style={{
+          fontSize: "2rem",
+          fontWeight: "bold",
+          textAlign: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        Welcome to CeiLer
+      </h1>
+      <p
+        style={{
+          textAlign: "center",
+          marginBottom: "1.5rem",
+        }}
+      >
+        Discover your favorite products with advanced filters!
+      </p>
 
-        {/* Render auction items here */}
-
-        <FilterModal
-          isOpen={isFilterOpen} // Pass the isOpen prop
-          selectedCategories={selectedCategories}
-          toggleCategory={toggleCategory}
-          onClose={() => setIsFilterOpen(false)} // Close the modal
-          onApply={handleApplyFilters} // Apply filters
-        />
-      </div>
-    </div>
+      <button
+        onClick={() => setIsFilterOpen(true)}
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#0070f3",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+          display: "block",
+          margin: "0 auto",
+        }}
+      >
+        Open Filter
+      </button>
+      <FilterModal
+        isOpen={isFilterOpen}
+        selectedCategories={selectedCategories}
+        toggleCategory={toggleCategory}
+        onClose={() => setIsFilterOpen(false)}
+        onApply={handleApply}
+      />
+    </main>
   );
 };
 
-export default HomePage;
+export default Home;

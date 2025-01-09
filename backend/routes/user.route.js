@@ -1,21 +1,20 @@
-import express from "express";
-import {
-  getAllUsers,
-  getUserByClerkId,
-  syncUser,
-  updateWalletBalance,
-  deleteUser,
-} from "../controller/user.controller.js";
+import express from 'express';
+import { 
+    getAllItems, 
+    getItemById, 
+    createItem, 
+    updateItem, 
+    deleteItem,
+    markItemAsCompleted 
+} from '../controllers/item.controller.js';
 
 const router = express.Router();
 
-// Admin-only routes
-router.get("/", getAllUsers); // Fetch all users (no auth for testing)
-router.delete("/:id", deleteUser); // Delete a user by ID (no auth for testing)
-
-// User-specific routes
-router.get("/me", getUserByClerkId); // Get current user (no auth for testing)
-router.post("/sync", syncUser); // Sync user from Clerk (no auth for testing)
-router.put("/wallet", updateWalletBalance); // Update wallet balance (no auth for testing)
+router.get('/', getAllItems);
+router.get('/:id', getItemById);
+router.post('/', createItem);
+router.put('/:id', updateItem);
+router.delete('/:id', deleteItem);
+router.post('/:id/complete', markItemAsCompleted);
 
 export default router;

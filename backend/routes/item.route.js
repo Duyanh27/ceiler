@@ -1,19 +1,20 @@
-import express from "express";
-import {
-  getAllItems,
-  getItemById,
-  createItem,
-  updateItem,
-  deleteItem,
-} from "../controllers/itemController.js";
+import express from 'express';
+import { 
+    getAllItems, 
+    getItemById, 
+    createItem, 
+    updateItem, 
+    deleteItem,
+    markItemAsCompleted 
+} from '../controllers/item.controller.js';
 
 const router = express.Router();
 
-// Define routes
-router.get("/", getAllItems); // Get all items
-router.get("/:id", getItemById); // Get item by ID
-router.post("/", createItem); // Create a new item
-router.put("/:id", updateItem); // Update an item by ID
-router.delete("/:id", deleteItem); // Delete an item by ID
+router.get('/', getAllItems);
+router.get('/:id', getItemById);
+router.post('/', createItem);
+router.put('/:id', updateItem);
+router.delete('/:id', deleteItem);
+router.post('/:id/complete', markItemAsCompleted);
 
 export default router;

@@ -5,7 +5,8 @@ import {
   createItem,
   updateItem,
   deleteItem,
-} from "../controllers/itemController.js";
+  bidItem,
+} from "../controller/item.controller.js";
 
 const router = express.Router();
 
@@ -15,5 +16,11 @@ router.get("/:id", getItemById); // Get item by ID
 router.post("/", createItem); // Create a new item
 router.put("/:id", updateItem); // Update an item by ID
 router.delete("/:id", deleteItem); // Delete an item by ID
+
+// Bidding route - Ensure the `io` instance is passed
+router.post("/auctions/:id/bid", (req, res) => {
+  const io = req.io; // Access the `io` instance attached in middleware
+  bidItem(io)(req, res); // Pass `io` to the `bidItem` controller
+});
 
 export default router;

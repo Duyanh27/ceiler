@@ -63,16 +63,22 @@ export const handleWebhookEvent = async (req, res) => {
 
 async function handleUserCreated(data, res) {
     try {
-        const { id, email_addresses, username } = data;
+        const { id, email_addresses, first_name, last_name, username, image_url } = data;
 
         if (!id || !email_addresses?.length) {
             return res.status(400).json({ error: 'Missing required user data' });
         }
 
+        const userUsername = username || 
+            (first_name && last_name ? 
+                `${first_name}${last_name}`.toLowerCase() : 
+                `user${Math.random().toString(36).slice(2, 8)}`);
+
         const newUser = await User.create({
             clerkId: id,
             email: email_addresses[0].email_address,
-            name: username || 'New User',
+            username: userUsername,
+            imageUrl: image_url || "https://via.placeholder.com/150",
             walletBalance: 0,
             activeBids: [],
             wonAuctions: [],
@@ -107,7 +113,7 @@ async function handleUserUpdated(data, res) {
         const updateData = {};
         if (email_addresses?.[0]?.email_address) updateData.email = email_addresses[0].email_address;
         if (username) updateData.username = username;
-        if (image_url) updateData.profileImage = image_url;
+        if (image_url) updateData.imageUrl = image_url;
 
         const updatedUser = await User.findOneAndUpdate(
             { clerkId: id },

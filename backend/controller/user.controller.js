@@ -1,114 +1,161 @@
 import User from "../models/user.model.js";
-import { clerkClient, getAuth } from "@clerk/express";
+import mongoose from "mongoose";
 
-// Retrieve all users (mod-only)
-export const getAllUsers = async (req, res) => {
-  try {
-    const { userId: clerkId } = getAuth(req);
+// Get user by ID (for public profile viewing)
+export const getUserById = async (req, res) => {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: "Invalid user ID format" });
+        }
 
-    // Check if the requester is a mod
-    const requestingUser = await User.findOne({ clerkId });
-    if (requestingUser.role !== "mod") {
-      return res.status(403).json({ message: "Access denied" });
+        const user = await User.findById(req.params.id)
+            .select("username email imageUrl activeBids wonAuctions")  // Added imageUrl
+            .populate('activeBids', 'amount status')
+            .populate('wonAuctions', 'title status');
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching user", error: error.message });
     }
-
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching users", error });
-  }
 };
 
-// Retrieve a user by Clerk ID (current user)
-export const getUserByClerkId = async (req, res) => {
-  try {
-    const { userId: clerkId } = getAuth(req);
+// Add funds to wallet
+export const addFundsToWallet = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const user = await User.findOne({ clerkId });
+    try {
+        const { amount, userId } = req.body; // Get userId from body for testing
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+        // Validate amount
+        if (!amount || typeof amount !== 'number' || amount <= 0) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Amount must be a positive number" });
+        }
+
+        const MAX_TRANSACTION = 1000000;
+        if (amount > MAX_TRANSACTION) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: `Maximum transaction amount is ${MAX_TRANSACTION}` });
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: userId },
+            { 
+                $inc: { walletBalance: amount },
+                $push: {
+                    notifications: {
+                        _id: new mongoose.Types.ObjectId().toString(),
+                        message: `Added ${amount} to wallet`,
+                        type: 'walletUpdated',
+                        timestamp: new Date()
+                    }
+                }
+            },
+            { 
+                new: true,
+                runValidators: true,
+                session 
+            }
+        );
+
+        if (!updatedUser) {
+            await session.abortTransaction();
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await session.commitTransaction();
+        res.status(200).json({ 
+            walletBalance: updatedUser.walletBalance,
+            transactionId: new mongoose.Types.ObjectId()
+        });
+    } catch (error) {
+        await session.abortTransaction();
+        res.status(500).json({ message: "Error adding funds to wallet", error: error.message });
+    } finally {
+        session.endSession();
     }
-
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching user", error });
-  }
 };
 
-// Sync user from Clerk (create or update)
-export const syncUser = async (req, res) => {
-  try {
-    const { userId: clerkId } = getAuth(req);
+// Clear notifications
+export const clearNotifications = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const clerkUser = await clerkClient.users.getUser(clerkId);
+    try {
+        const { userId } = req.body;
 
-    const user = await User.findOneAndUpdate(
-      { clerkId },
-      {
-        clerkId,
-        email: clerkUser.emailAddresses[0].emailAddress,
-        name: `${clerkUser.firstName} ${clerkUser.lastName}`,
-      },
-      { upsert: true, new: true }
-    );
+        const result = await User.updateOne(
+            { _id: userId },
+            { $set: { notifications: [] } },
+            { session }
+        );
 
-    res.status(200).json({ message: "User synced successfully", user });
-  } catch (error) {
-    res.status(500).json({ message: "Error syncing user", error });
-  }
+        if (result.matchedCount === 0) {
+            await session.abortTransaction();
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await session.commitTransaction();
+        res.status(200).json({ message: "Notifications cleared" });
+    } catch (error) {
+        await session.abortTransaction();
+        res.status(500).json({ message: "Error clearing notifications", error: error.message });
+    } finally {
+        session.endSession();
+    }
 };
 
-// Update wallet balance
-export const updateWalletBalance = async (req, res) => {
-  try {
-    const { userId: clerkId } = getAuth(req);
-    const { walletBalance } = req.body;
+// Mark notifications as read
+export const markNotificationsAsRead = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const user = await User.findOneAndUpdate(
-      { clerkId },
-      { walletBalance },
-      { new: true }
-    );
+    try {
+        const { userId, notificationIds } = req.body;
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+        const updateQuery = notificationIds && Array.isArray(notificationIds)
+            ? {
+                $set: { "notifications.$[elem].isRead": true }
+            }
+            : {
+                $set: { "notifications.$[].isRead": true }
+            };
+
+        const options = notificationIds && Array.isArray(notificationIds)
+            ? {
+                arrayFilters: [{ "elem._id": { $in: notificationIds } }],
+                session
+            }
+            : { session };
+
+        const result = await User.updateOne(
+            { _id: userId },
+            updateQuery,
+            options
+        );
+
+        if (result.matchedCount === 0) {
+            await session.abortTransaction();
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await session.commitTransaction();
+        res.status(200).json({ message: "Notifications marked as read" });
+    } catch (error) {
+        await session.abortTransaction();
+        res.status(500).json({ message: "Error marking notifications as read", error: error.message });
+    } finally {
+        session.endSession();
     }
-
-    res.status(200).json({ message: "Wallet balance updated", user });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating wallet balance", error });
-  }
-};
-
-// Delete a user (mod-only)
-export const deleteUser = async (req, res) => {
-  try {
-    const { userId: clerkId } = getAuth(req);
-    const { id } = req.params;
-
-    // Check if the requester is a mod
-    const requestingUser = await User.findOne({ clerkId });
-    if (requestingUser.role !== "mod") {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    const deletedUser = await User.findByIdAndDelete(id);
-
-    if (!deletedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting user", error });
-  }
 };
 
 export default {
-  getAllUsers,
-  getUserByClerkId,
-  syncUser,
-  updateWalletBalance,
-  deleteUser,
+    getUserById,
+    addFundsToWallet,
+    clearNotifications,
+    markNotificationsAsRead
 };

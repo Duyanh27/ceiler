@@ -7,6 +7,9 @@ import AuctionList from './components/AuctionList';
 import Newsletter from './components/Newsletter';
 import Footer from './components/footer';
 import FilterModal from './components/FilterModal';
+import AboutUsPage from "./components/AboutUsPage"; // Import About Us component
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // For routing
+
 
 const auctionItems = [
   {
@@ -149,120 +152,143 @@ export default function HomePage() {
   };
 
   return (
-    <>
-      <Navbar />
+    <Router>
+      <Routes>
+        {/* Route for the Home Page */}
+        <Route
+          path="/"
+          element={
+            <>
+              <Navbar />
 
-      <HeroSection
-        headline="Explore Detailed Product Auctions"
-        subheadline="Dive deep into the rarest treasures and start your bidding journey."
-        buttonText="Start Bidding"
-        onButtonClick={() => console.log("Start Bidding clicked")}
-      />
+              <HeroSection
+                headline="Explore Detailed Product Auctions"
+                subheadline="Dive deep into the rarest treasures and start your bidding journey."
+                buttonText="Start Bidding"
+                onButtonClick={() => console.log("Start Bidding clicked")}
+              />
 
-      {/* Filter Section */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-          padding: "10px 20px",
-          borderBottom: "1px solid #eaeaea",
-        }}
-      >
-        <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>Filters</h2>
+              {/* Filter Section */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "20px",
+                  padding: "10px 20px",
+                  borderBottom: "1px solid #eaeaea",
+                }}
+              >
+                <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>
+                  Filters
+                </h2>
 
-        {/* Price Filter Bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span>Price: </span>
-          <input
-            type="range"
-            min="0"
-            max="2000"
-            value={priceRange[0]}
-            onChange={(e) => handlePriceChange(Number(e.target.value), priceRange[1])}
-            style={{ width: "150px" }}
-          />
-          <input
-            type="range"
-            min="0"
-            max="2000"
-            value={priceRange[1]}
-            onChange={(e) => handlePriceChange(priceRange[0], Number(e.target.value))}
-            style={{ width: "150px" }}
-          />
-          <span>
-            ${priceRange[0]} - ${priceRange[1]}
-          </span>
-        </div>
+                {/* Price Filter Bar */}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span>Price: </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000"
+                    value={priceRange[0]}
+                    onChange={(e) =>
+                      handlePriceChange(Number(e.target.value), priceRange[1])
+                    }
+                    style={{ width: "150px" }}
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000"
+                    value={priceRange[1]}
+                    onChange={(e) =>
+                      handlePriceChange(priceRange[0], Number(e.target.value))
+                    }
+                    style={{ width: "150px" }}
+                  />
+                  <span>
+                    ${priceRange[0]} - ${priceRange[1]}
+                  </span>
+                </div>
 
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "#ffffff",
-            color: "#0070f3",
-            padding: "8px 12px",
-            border: "1px solid #e0e0e0",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <span style={{ marginRight: "8px" }}>More Filters</span>
-        </button>
-      </div>
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    backgroundColor: "#ffffff",
+                    color: "#0070f3",
+                    padding: "8px 12px",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <span style={{ marginRight: "8px" }}>More Filters</span>
+                </button>
+              </div>
 
-      {/* Auction List */}
-      <div style={{ margin: "50px auto", maxWidth: "1200px", padding: "0 1rem" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Available Auctions</h2>
-        <AuctionList items={currentItems} />
-      </div>
+              {/* Auction List */}
+              <div style={{ margin: "50px auto", maxWidth: "1200px", padding: "0 1rem" }}>
+                <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+                  Available Auctions
+                </h2>
+                <AuctionList items={currentItems} />
+              </div>
 
-      {/* Pagination */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "20px",
-          gap: "10px",
-        }}
-      >
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => handlePageChange(index + 1)}
-            style={{
-              padding: "10px 15px",
-              border: "none",
-              borderRadius: "8px",
-              backgroundColor: currentPage === index + 1 ? "#f9f3f3" : "transparent",
-              color: currentPage === index + 1 ? "#9e3b54" : "#c5a3b0",
-              fontWeight: currentPage === index + 1 ? "bold" : "normal",
-              cursor: "pointer",
-            }}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+              {/* Pagination */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: "20px",
+                  gap: "10px",
+                }}
+              >
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <button
+                    key={index + 1}
+                    onClick={() => handlePageChange(index + 1)}
+                    style={{
+                      padding: "10px 15px",
+                      border: "none",
+                      borderRadius: "8px",
+                      backgroundColor:
+                        currentPage === index + 1 ? "#f9f3f3" : "transparent",
+                      color:
+                        currentPage === index + 1 ? "#9e3b54" : "#c5a3b0",
+                      fontWeight: currentPage === index + 1 ? "bold" : "normal",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+              </div>
 
-      <Newsletter />
-      <Footer />
+              <Newsletter />
+              <Footer />
 
-      {isFilterOpen && (
-        <FilterModal
-          isOpen={isFilterOpen}
-          selectedCategories={[]}
-          toggleCategory={(category: string) => {}}
-          onApply={() => setIsFilterOpen(false)}
-          onClose={() => setIsFilterOpen(false)}
+              {isFilterOpen && (
+                <FilterModal
+                  isOpen={isFilterOpen}
+                  selectedCategories={[]}
+                  toggleCategory={(category: string) => {}}
+                  onApply={() => setIsFilterOpen(false)}
+                  onClose={() => setIsFilterOpen(false)}
+                />
+              )}
+            </>
+          }
         />
-      )}
-    </>
+
+        {/* Route for the About Us Page */}
+        <Route path="/about" element={<AboutUsPage />} />
+      </Routes>
+    </Router>
   );
 }

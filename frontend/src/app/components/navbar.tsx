@@ -1,13 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faBell } from "@fortawesome/free-solid-svg-icons"; // Import icons
+import { faHeart, faBell } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar: React.FC = () => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showPurchasedItems, setShowPurchasedItems] = useState(false);
+  const [purchasedItems] = useState([
+    { id: 1, name: "Product 1", price: "$50" },
+    { id: 2, name: "Product 2", price: "$30" },
+    { id: 3, name: "Product 3", price: "$20" },
+  ]);
+  const [isHeartRed, setIsHeartRed] = useState(false);
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const togglePurchasedItems = () => {
+    setShowPurchasedItems(!showPurchasedItems);
+    setIsHeartRed(!isHeartRed);
+  };
+
   return (
     <header style={styles.navbar}>
       <div style={styles.container}>
@@ -32,7 +50,7 @@ const Navbar: React.FC = () => {
           <Link href="/sell" style={styles.link}>
             Sell
           </Link>
-          <Link href="/about-us" style={styles.link}>
+          <Link href="/about" style={styles.link}>
             About Us
           </Link>
         </nav>
@@ -50,8 +68,53 @@ const Navbar: React.FC = () => {
 
           {/* Icons */}
           <div style={styles.iconsWrapper}>
-            <FontAwesomeIcon icon={faHeart} style={styles.icon} />
-            <FontAwesomeIcon icon={faBell} style={styles.icon} />
+            <div style={styles.purchasedWrapper}>
+              <FontAwesomeIcon
+                icon={faHeart}
+                style={{
+                  ...styles.icon,
+                  color: isHeartRed ? "red" : "#fff",
+                }}
+                onClick={togglePurchasedItems}
+              />
+              {showPurchasedItems && (
+                <div style={styles.purchasedDropdown}>
+                  <h4 style={styles.purchasedTitle}>Purchased Items</h4>
+                  {purchasedItems.map((item) => (
+                    <p key={item.id} style={styles.purchasedItem}>
+                      {item.name} - {item.price}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div style={styles.notificationWrapper}>
+              <FontAwesomeIcon
+                icon={faBell}
+                style={{
+                  ...styles.icon,
+                  color: showNotifications ? "red" : "#fff",
+                }}
+                onClick={toggleNotifications}
+              />
+              {showNotifications && (
+                <div style={styles.notificationDropdown}>
+                  <p style={styles.notificationItem}>
+                    Your saved item is about to start bidding!
+                  </p>
+                  <p style={styles.notificationItem}>
+                    You have successfully won the bidding on this item.
+                  </p>
+                  <p style={styles.notificationItem}>
+                    You have been out-bid!
+                  </p>
+                  <p style={styles.notificationItem}>
+                    You have been out-bid!
+                  </p>
+                </div>
+              )}
+            </div>
             <SignedOut>
               <Link href="/sign-in">
                 <button style={styles.signInButton}>Sign In</button>
@@ -69,7 +132,7 @@ const Navbar: React.FC = () => {
 
 const styles: { [key: string]: React.CSSProperties } = {
   navbar: {
-    backgroundColor: "#0056d2", // Navbar background color
+    backgroundColor: "#0056d2",
     padding: "1rem 0",
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
     position: "sticky",
@@ -132,6 +195,51 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "1.5rem",
     color: "#fff",
     cursor: "pointer",
+  },
+  purchasedWrapper: {
+    position: "relative",
+  },
+  purchasedDropdown: {
+    position: "absolute",
+    top: "2rem",
+    left: 0,
+    width: "300px",
+    backgroundColor: "#fff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    zIndex: 10,
+    padding: "1rem",
+  },
+  purchasedTitle: {
+    fontSize: "1.1rem",
+    fontWeight: "bold",
+    marginBottom: "0.5rem",
+  },
+  purchasedItem: {
+    padding: "0.5rem",
+    borderBottom: "1px solid #ddd",
+    color: "#333",
+    fontSize: "0.9rem",
+  },
+  notificationWrapper: {
+    position: "relative",
+  },
+  notificationDropdown: {
+    position: "absolute",
+    top: "2rem",
+    right: 0,
+    width: "300px",
+    backgroundColor: "#fff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    zIndex: 10,
+    padding: "1rem",
+  },
+  notificationItem: {
+    padding: "0.5rem",
+    borderBottom: "1px solid #ddd",
+    color: "#333",
+    fontSize: "0.9rem",
   },
   signInButton: {
     padding: "0.5rem 1rem",

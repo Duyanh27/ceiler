@@ -1,16 +1,40 @@
 import mongoose from 'mongoose';
 
 const bidSchema = new mongoose.Schema({
-    userId: { type: String, required: true, ref: 'User' }, // User who placed the bid
-    itemId : { type: String, required: true, ref: 'Item' },
-    amount: { type: Number, required: true }, // Bid amount
-    timestamp: { type: Date, default: Date.now } // Time of the bid
-  }, { timestamps: true });
+    _id: { type: String, required: true },
+    itemId: {
+        type: String,
+        required: true,
+        ref: 'Item',
+        index: true
+    },
+    userId: {
+        type: String,
+        required: true,
+        ref: 'User',
+        index: true
+    },
+    amount: {
+        type: Number,
+        required: true,
+        min: 0,
+        index: true
+    },
+    status: {
+        type: String,
+        enum: ['active', 'won', 'outbid', 'cancelled'],
+        default: 'active',
+        index: true
+    },
+    createdAt: { 
+        type: Date, 
+        required: true,
+        index: true
+    },
+});
 
-// Index for faster searches by category name
-bidSchema.index({ itemId : 1 });
+bidSchema.index({ itemId: 1, amount: -1 });
+bidSchema.index({ itemId: 1, userId: 1 });
 
 const Bid = mongoose.model('Bid', bidSchema);
-
 export default Bid;
-

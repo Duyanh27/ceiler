@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import userRoutes from "./routes/user.route.js"; // Import user routes
 import itemRoutes from "./routes/item.route.js";
+import categoryRoutes from "./routes/category.route.js"
 import webhookRoutes from "./routes/webhook.route.js";
 import { clerkMiddleware, requireAuth } from "@clerk/express"; // Clerk middleware
 import "dotenv/config";
@@ -69,6 +70,8 @@ app.use(
   },
   itemRoutes
 );
+
+app.use("/api/categories", categoryRoutes)
 
 // Example of a protected route to test Clerk integration
 app.use("/api/protected", requireAuth(), (req, res) => {

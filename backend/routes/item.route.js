@@ -12,14 +12,14 @@ import { requireAuth } from "@clerk/express";
 const router = express.Router();
 
 // Define routes
-router.get("/", getAllItems); // Get all items
+router.get("/getAllItem", getAllItems); // Get all items
 router.get("/:id", getItemById); // Get item by ID
-router.post("/", createItem); // Create a new item
+router.post("/addItem", createItem); // Create a new item
 router.put("/:id", updateItem); // Update an item by ID
 router.delete("/:id", deleteItem); // Delete an item by ID
 
 // Bidding route - Ensure the `io` instance is passed
-router.post("/auctions/:id/bid", requireAuth(), (req, res) => {
+router.post("/auctions/:id/bid", (req, res) => {
   const io = req.io; // Access the `io` instance attached in middleware
   bidItem(io)(req, res); // Pass `io` to the `bidItem` controller
 });

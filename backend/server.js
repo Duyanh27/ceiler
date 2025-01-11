@@ -11,7 +11,11 @@ import { connectDB } from "./config/db.js";
 // Route imports
 import userRoutes from "./routes/user.route.js";
 import itemRoutes from "./routes/item.route.js";
+import categoryRoutes from "./routes/category.route.js";
 import webhookRoutes from "./routes/webhook.route.js";
+import cron from "node-cron"; // Import cron
+import Item from "../backend/models/item.model.js";
+
 
 // Load environment variables
 dotenv.config();
@@ -83,25 +87,51 @@ app.use(cors({
 
 // Debug middleware
 app.use((req, res, next) => {
-  console.log('\n🔄 Incoming Request:');
-  console.log('📍 URL:', req.url);
-  console.log('📍 Method:', req.method);
-  console.log('🔑 Headers:', req.headers);
-  next();
+    if (req.path === '/api/webhooks') {
+        return next();
+    }
+    return clerkMiddleware()(req, res, next);
 });
 
-// Test route
-app.get('/test', (req, res) => {
-  res.json({ message: "Server is running" });
+// Middleware to parse JSON data in the request body
+app.use(express.json());
+
+// Socket.IO Connection
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
 });
 
-// Routes
-app.use("/api/webhooks", webhookRoutes);
-app.use("/api/users", verifyClerkJWT, (req, res, next) => {
-  console.log("🔍 Middleware transfer check: req.auth:", req.auth);
-  next();
-}, userRoutes);
-app.use("/api/items", verifyClerkJWT, itemRoutes);
+// Enable CORS
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow only your frontend's origin
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allow specific HTTP methods
+    credentials: true, // Allow cookies if needed
+  })
+);
+
+// User-related routes
+app.use("/api/users", userRoutes);
+
+// Item-related routes
+app.use(
+  "/api/items",
+  (req, res, next) => {
+    req.io = io; // Attach the Socket.IO instance to the request object
+    next();
+  },
+  itemRoutes
+);
+
+// Example of a protected route to test Clerk integration
+app.use("/api/protected", requireAuth(), (req, res) => {
+  const { userId } = req.auth; // Clerk user ID from token
+  res.json({ message: `Hello, authenticated user with ID: ${userId}!` });
+});
 
 // Start Server
 server.listen(PORT, async () => {

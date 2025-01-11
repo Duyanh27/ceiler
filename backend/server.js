@@ -1,15 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
-import userRoutes from "./routes/user.route.js"; // Import user routes
+import userRoutes from "./routes/user.route.js";
 import itemRoutes from "./routes/item.route.js";
-import categoryRoutes from "./routes/category.route.js"
+import categoryRoutes from "./routes/category.route.js";
 import webhookRoutes from "./routes/webhook.route.js";
-import { clerkMiddleware, requireAuth } from "@clerk/express"; // Clerk middleware
-import "dotenv/config";
-import http from "http"; // Required to attach Socket.IO to the server
-import { Server } from "socket.io"; // Socket.IO import
-import cors from "cors"; // Import CORS
+import { clerkMiddleware, requireAuth } from "@clerk/express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
 
 dotenv.config();
 
@@ -19,67 +18,70 @@ const PORT = process.env.PORT || 5000;
 // Create an HTTP server instance
 const server = http.createServer(app);
 
-// Set up Socket.IO with the server
+// CORS configuration
+const allowedOrigins = ["http://localhost:3000"];
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
+// Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow all origins for simplicity; configure this as needed
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
   },
 });
 
-// Important: Place webhook routes before any middleware that parses the body
+// Webhooks route
 app.use("/api/webhooks", webhookRoutes);
 
-// Apply Clerk middleware globally to check for valid sessions
+// Clerk middleware
 app.use((req, res, next) => {
-    if (req.path === '/api/webhooks') {
-        return next();
-    }
-    return clerkMiddleware()(req, res, next);
+  if (req.path === "/api/webhooks") {
+    return next();
+  }
+  return clerkMiddleware()(req, res, next);
 });
 
-// Middleware to parse JSON data in the request body
+// Middleware to parse JSON data
 app.use(express.json());
 
-// Socket.IO Connection
+// Socket.IO connection events
 io.on("connection", (socket) => {
   console.log("A user connected");
+
+  socket.on("place-bid", (data) => {
+    console.log("Bid received:", data);
+    io.emit("auction-updated", data);
+  });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
 });
 
-// Enable CORS
-app.use(
-  cors({
-    origin: "http://localhost:3000", // Allow only your frontend's origin
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allow specific HTTP methods
-    credentials: true, // Allow cookies if needed
-  })
-);
-
-// User-related routes
+// Routes
 app.use("/api/users", userRoutes);
-
-// Item-related routes
 app.use(
   "/api/items",
   (req, res, next) => {
-    req.io = io; // Attach the Socket.IO instance to the request object
+    req.io = io;
     next();
   },
   itemRoutes
 );
+app.use("/api/categories", categoryRoutes);
 
-app.use("/api/categories", categoryRoutes)
-
-// Example of a protected route to test Clerk integration
 app.use("/api/protected", requireAuth(), (req, res) => {
-  const { userId } = req.auth; // Clerk user ID from token
+  const { userId } = req.auth;
   res.json({ message: `Hello, authenticated user with ID: ${userId}!` });
 });
 
-// Start the server and connect to the database
+// Start server
 server.listen(PORT, () => {
   connectDB();
   console.log(`Server started at http://localhost:${PORT}`);

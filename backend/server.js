@@ -1,109 +1,47 @@
-// server.js
 import express from "express";
-import http from "http";
-import cors from "cors";
 import dotenv from "dotenv";
-import jwt from 'jsonwebtoken';
-
-// Configuration imports
 import { connectDB } from "./config/db.js";
-
-// Route imports
-import userRoutes from "./routes/user.route.js";
+import userRoutes from "./routes/user.route.js"; // Import user routes
 import itemRoutes from "./routes/item.route.js";
 import categoryRoutes from "./routes/category.route.js";
 import webhookRoutes from "./routes/webhook.route.js";
+import { clerkMiddleware, requireAuth } from "@clerk/express"; // Clerk middleware
+import "dotenv/config";
+import http from "http"; // Required to attach Socket.IO to the server
+import { Server } from "socket.io"; // Socket.IO import
+import cors from "cors"; // Import CORS
 import cron from "node-cron"; // Import cron
 import Item from "../backend/models/item.model.js";
 
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
-// JWT Verification Middleware
-const verifyClerkJWT = async (req, res, next) => {
-  try {
-    console.log("🔐 Verifying JWT...");
-    
-    // Check for Authorization header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.log("❌ No Bearer token found");
-      return res.status(401).json({ message: "No token provided" });
-    }
+// Create an HTTP server instance
+const server = http.createServer(app);
 
-    const token = authHeader.split(" ")[1];
-    console.log("🎟️ Token received:", token);
+// Set up Socket.IO with the server
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Allow all origins for simplicity; configure this as needed
+  },
+});
 
-    // Check for Clerk PEM public key
-    const publicKey = process.env.CLERK_PEM_PUBLIC_KEY;
-    if (!publicKey) {
-      console.error("❌ No public key found");
-      return res.status(500).json({ message: "Server configuration error" });
-    }
+// Important: Place webhook routes before any middleware that parses the body
+app.use("/api/webhooks", webhookRoutes);
 
-    // Verify the JWT
-    let decoded;
-    try {
-      decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] });
-      console.log("✅ Token decoded:", decoded);
-    } catch (error) {
-      console.error("❌ JWT verification failed:", error.message);
-      return res.status(401).json({ message: "Invalid token", error: error.message });
-    }
-
-    // Validate userId format
-    const userId = decoded.sub;
-    const isValidUserId = /^user_[a-zA-Z0-9]+$/.test(userId);
-    if (!isValidUserId) {
-      console.error("❌ Invalid user ID format:", userId);
-      return res.status(400).json({ message: "Invalid user ID format hehe" });
-    }
-
-    // Attach userId to req.auth
-    req.auth = { userId };
-    console.log("🔑 Authenticated user ID:", req.auth.userId);
-
-    next();
-  } catch (error) {
-    console.error("❌ Middleware error:", error.message);
-    return res.status(500).json({ message: "Internal server error", error: error.message });
-  }
-};
-
-// Middleware
-const allowedOrigins = ["http://localhost:3000", "http://localhost:8080"];
-
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-}));
-
-
-// Debug middleware
+// Apply Clerk middleware globally to check for valid sessions
 app.use((req, res, next) => {
-    if (req.path === '/api/webhooks') {
-        return next();
-    }
-    return clerkMiddleware()(req, res, next);
+  if (req.path === "/api/webhooks") {
+    return next();
+  }
+  return clerkMiddleware()(req, res, next);
 });
 
 // Middleware to parse JSON data in the request body
 app.use(express.json());
-
-// Socket.IO Connection
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
 
 // Enable CORS
 app.use(
@@ -114,8 +52,40 @@ app.use(
   })
 );
 
+// Socket.IO Connection
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+
+cron.schedule("* * * * *", async () => {
+  try {
+    const now = new Date();
+    const expiredAuctions = await Item.find({
+      endTime: { $lte: now },
+      status: "active",
+    });
+
+    for (const auction of expiredAuctions) {
+      auction.status = "completed";
+      await auction.save();
+      console.log(`Auction ${auction._id} ended.`);
+    }
+  } catch (error) {
+    console.error("Error processing expired auctions:", error.message);
+  }
+});
+
 // User-related routes
 app.use("/api/users", userRoutes);
+
+app.use("/getTime", (req, res) => {
+  console.log(new Date());
+  res.json({ message: new Date() });
+});
 
 // Item-related routes
 app.use(
@@ -127,19 +97,16 @@ app.use(
   itemRoutes
 );
 
+app.use("/api/categories", categoryRoutes);
+
 // Example of a protected route to test Clerk integration
 app.use("/api/protected", requireAuth(), (req, res) => {
   const { userId } = req.auth; // Clerk user ID from token
   res.json({ message: `Hello, authenticated user with ID: ${userId}!` });
 });
 
-// Start Server
-server.listen(PORT, async () => {
-  console.log(`🚀 Server started at http://localhost:${PORT}`);
-  try {
-    await connectDB();
-    console.log('📦 Connected to MongoDB');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-  }
+// Start the server and connect to the database
+server.listen(PORT, () => {
+  connectDB();
+  console.log(`Server started at http://localhost:${PORT}`);
 });

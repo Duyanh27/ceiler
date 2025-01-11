@@ -1,27 +1,22 @@
-// routes/user.route.js
 import express from "express";
+import { requireAuth } from "@clerk/express"; // Import Clerk-provided middleware
 import {
-  getUserById,
-  getOwnProfile,
-  addFundsToWallet,
-  clearNotifications,
-  markNotificationsAsRead,
-  markNotificationAsRead,
+  getAllUsers,
+  getUserByClerkId,
+  syncUser,
+  updateWalletBalance,
+  deleteUser,
 } from "../controller/user.controller.js";
 
 const router = express.Router();
 
-// Protected routes - auth is handled by middleware in server.js
-router.get('/profile', (req, res, next) => {
-  console.log("➡️ req.auth in /profile route:", req.auth);
-  next();
-}, getOwnProfile);
+// Admin-only routes
+router.get("/", requireAuth(), getAllUsers); // Fetch all users (admin-only)
+router.delete("/:id", requireAuth(), deleteUser); // Delete a user by ID (admin-only)
 
-// Public routes
-router.get("/:id", getUserById);
-router.post("/wallet/add", addFundsToWallet);
-router.delete("/notifications", clearNotifications);
-router.put("/notifications/read", markNotificationsAsRead);
-router.put("/notification/read", markNotificationAsRead);
+// User-specific routes
+router.get("/me", requireAuth(), getUserByClerkId); // Get current user
+router.post("/sync", requireAuth(), syncUser); // Sync user from Clerk
+router.put("/wallet", requireAuth(), updateWalletBalance); // Update wallet balance
 
 export default router;

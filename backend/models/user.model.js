@@ -1,67 +1,44 @@
 import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema({
-    _id: { type: String, required: true },
-    message: { type: String, required: true },
-    isRead: { type: Boolean, default: false },
-    type: {
-        type: String,
-        enum: ["bidOutbid", "bidWon", "auctionEnding", "walletUpdated"],
-        required: true
-    },
-    relatedItemId: { type: String, ref: 'Item' },
-    relatedBidId: { type: String, ref: 'Bid' },
-    timestamp: { type: Date, default: Date.now }
+  _id: { type: String, required: true }, // Notification ID
+  message: { type: String, required: true }, // Notification content
+  isRead: { type: Boolean, default: false }, // Read status
+  type: {
+    type: String,
+    enum: ["bidUpdate", "auctionEnding"],
+    required: true,
+  }, // Notification type
+  timestamp: { type: Date, default: Date.now }, // Notification timestamp
 });
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     clerkId: {
-        type: String,
-        required: true,
-        unique: true
-    },
+      type: String,
+      required: true,
+      unique: true, // This already creates an index in Mongoose
+    }, // Clerk user ID
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        match: [/^\S+@\S+\.\S+$/, "Please use a valid email address."]
-    },
-    username: {
-        type: String,
-        required: true
-    },
-    imageUrl: {
-        type: String,
-        default: "https://via.placeholder.com/150"  // Default placeholder image
-    },
-    walletBalance: {
-        type: Number,
-        default: 0,
-        min: 0
-    },
-    activeBids: [{
-        type: String,
-        ref: 'Bid'
-    }],
-    wonAuctions: [{
-        type: String,
-        ref: 'Item'
-    }],
-    notifications: [notificationSchema]
-}, {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-});
+      type: String,
+      required: true,
+      unique: true, // This also creates an index in Mongoose
+      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address."],
+    }, // Email address
+    name: { type: String, required: true }, // User name
+    walletBalance: { type: Number, default: 0 }, // Wallet balance
+    role: {
+      type: String,
+      enum: ["user", "mod"],
+      default: "user",
+    }, // Role: user or mod
+    notifications: [notificationSchema], // Embedded notifications
+  },
+  { timestamps: true } // Automatically adds createdAt and updatedAt
+);
 
-// Virtual for total active bids amount
-userSchema.virtual('totalActiveBidsAmount').get(function() {
-    return this.activeBids.reduce((sum, bid) => sum + bid.amount, 0);
-});
-
-userSchema.index({ 'notifications.isRead': 1 });
-// userSchema.index({ clerkId: 1 });
-// userSchema.index({ email: 1 });
+// Remove this line if clerkId already has `unique: true`:
+// userSchema.index({ clerkId: 1 }); // NOT needed if `unique` is defined above
 
 const User = mongoose.model("User", userSchema);
 

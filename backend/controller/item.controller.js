@@ -2,16 +2,103 @@ import e from "express";
 import mongoose from "mongoose";
 import Item from "../models/item.model.js";
 import Bid from "../models/bid.model.js";
-import Category from "../models/category.model.js"
+import Category from "../models/category.model.js";
 
 export const getAllItems = async (req, res) => {
   try {
-    const items = await Item.find()
-      .populate("category", "name")
-      .populate("createdBy", "name email");
-    res.status(200).json(items);
+    const {
+      page = 1,
+      limit = 10,
+      categoryId,
+      status,
+      search,
+      minPrice,
+      maxPrice,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = req.query;
+
+    const filters = {};
+
+    // Filter by category (including parent-child hierarchy)
+    if (categoryId) {
+      const category = await Category.findById(categoryId);
+      if (!category) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+
+      const childCategories = await Category.find({
+        parentCategory: categoryId,
+      });
+      const categoryIds = [
+        categoryId,
+        ...childCategories.map((cat) => cat._id),
+      ];
+      filters.categories = { $in: categoryIds };
+    }
+
+    // Filter by status
+    if (status) {
+      filters.status = status;
+    }
+
+    // Search by title or description
+    if (search) {
+      filters.$or = [
+        { title: new RegExp(search, "i") },
+        { description: new RegExp(search, "i") },
+      ];
+    }
+
+    // Filter by price range (highestBid.amount or startingPrice)
+    if (minPrice || maxPrice) {
+      const priceFilter = {};
+      if (minPrice) priceFilter.$gte = parseFloat(minPrice);
+      if (maxPrice) priceFilter.$lte = parseFloat(maxPrice);
+
+      filters.$or = [
+        { "highestBid.amount": priceFilter },
+        { startingPrice: priceFilter },
+      ];
+    }
+
+    // Validate and sanitize sort parameters
+    const validSortFields = [
+      "createdAt",
+      "startingPrice",
+      "endTime",
+      "totalBids",
+    ];
+    const actualSortBy = validSortFields.includes(sortBy)
+      ? sortBy
+      : "createdAt";
+    const actualSortOrder = sortOrder === "asc" ? 1 : -1;
+
+    // Fetch filtered and paginated items
+    const items = await Item.find(filters)
+      .sort({ [actualSortBy]: actualSortOrder })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit))
+      .populate("categories", "name")
+      .select("-__v");
+
+    // Count total items matching the filters
+    const total = await Item.countDocuments(filters);
+
+    // Return items with pagination info
+    res.status(200).json({
+      items,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching items", error });
+    console.error("Error in getAllItems:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error fetching items", error: error.message });
   }
 };
 
@@ -40,7 +127,6 @@ export const createItem = async (req, res) => {
       imageUrl,
       userId, // Include userId in the body
     } = req.body;
-
 
     // Input validation
     if (!title || title.trim().length < 3 || title.trim().length > 100) {
@@ -110,7 +196,7 @@ export const createItem = async (req, res) => {
       status: "active",
       highestBid: null,
       totalBids: 0,
-      winner: null
+      winner: null,
     });
 
     res.status(201).json({
@@ -124,7 +210,6 @@ export const createItem = async (req, res) => {
     });
   }
 };
-
 
 export const updateItem = async (req, res) => {
   try {

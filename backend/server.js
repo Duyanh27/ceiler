@@ -1,86 +1,115 @@
-// Core imports
+// server.js
 import express from "express";
 import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
+import jwt from 'jsonwebtoken';
 
 // Configuration imports
 import { connectDB } from "./config/db.js";
-import { clerkMiddleware, requireAuth } from "@clerk/express";
 
 // Route imports
 import userRoutes from "./routes/user.route.js";
 import itemRoutes from "./routes/item.route.js";
 import webhookRoutes from "./routes/webhook.route.js";
 
-// Socket.IO
-import { Server } from "socket.io";
-
 // Load environment variables
 dotenv.config();
 
-// Initialize Express and create HTTP server
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
-// Initialize Socket.IO
-const io = new Server(server, {
-  cors: {
-    origin: "*", // Allow all origins for simplicity
-  },
-});
+// JWT Verification Middleware
+const verifyClerkJWT = async (req, res, next) => {
+  try {
+    console.log("🔐 Verifying JWT...");
+    
+    // Check for Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("❌ No Bearer token found");
+      return res.status(401).json({ message: "No token provided" });
+    }
 
-// Socket.IO Connection Handler
-io.on("connection", (socket) => {
-  console.log("A user connected");
-  
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
+    const token = authHeader.split(" ")[1];
+    console.log("🎟️ Token received:", token);
 
-// Middleware Configuration
-// 1. Webhooks (must be before body parser)
-app.use("/api/webhooks", webhookRoutes);
+    // Check for Clerk PEM public key
+    const publicKey = process.env.CLERK_PEM_PUBLIC_KEY;
+    if (!publicKey) {
+      console.error("❌ No public key found");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
 
-// 2. Global Middleware
-app.use(express.json());
+    // Verify the JWT
+    let decoded;
+    try {
+      decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] });
+      console.log("✅ Token decoded:", decoded);
+    } catch (error) {
+      console.error("❌ JWT verification failed:", error.message);
+      return res.status(401).json({ message: "Invalid token", error: error.message });
+    }
+
+    // Validate userId format
+    const userId = decoded.sub;
+    const isValidUserId = /^user_[a-zA-Z0-9]+$/.test(userId);
+    if (!isValidUserId) {
+      console.error("❌ Invalid user ID format:", userId);
+      return res.status(400).json({ message: "Invalid user ID format hehe" });
+    }
+
+    // Attach userId to req.auth
+    req.auth = { userId };
+    console.log("🔑 Authenticated user ID:", req.auth.userId);
+
+    next();
+  } catch (error) {
+    console.error("❌ Middleware error:", error.message);
+    return res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// Middleware
+const allowedOrigins = ["http://localhost:3000", "http://localhost:8080"];
+
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
 
-// 3. Clerk Authentication (except webhooks)
+
+// Debug middleware
 app.use((req, res, next) => {
-  if (req.path === '/api/webhooks') {
-    return next();
-  }
-  return clerkMiddleware()(req, res, next);
+  console.log('\n🔄 Incoming Request:');
+  console.log('📍 URL:', req.url);
+  console.log('📍 Method:', req.method);
+  console.log('🔑 Headers:', req.headers);
+  next();
 });
 
-// Route Configuration
-// 1. API Routes
-app.use("/api/users", userRoutes);
-app.use("/api/items", attachIO, itemRoutes);
-app.use("/api/protected", requireAuth(), handleProtectedRoute);
+// Test route
+app.get('/test', (req, res) => {
+  res.json({ message: "Server is running" });
+});
+
+// Routes
+app.use("/api/webhooks", webhookRoutes);
+app.use("/api/users", verifyClerkJWT, (req, res, next) => {
+  console.log("🔍 Middleware transfer check: req.auth:", req.auth);
+  next();
+}, userRoutes);
+app.use("/api/items", verifyClerkJWT, itemRoutes);
 
 // Start Server
-server.listen(PORT, () => {
-  connectDB();
-  console.log(`Server started at http://localhost:${PORT}`);
+server.listen(PORT, async () => {
+  console.log(`🚀 Server started at http://localhost:${PORT}`);
+  try {
+    await connectDB();
+    console.log('📦 Connected to MongoDB');
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+  }
 });
-
-// Middleware Functions
-function attachIO(req, res, next) {
-  req.io = io;
-  next();
-}
-
-function handleProtectedRoute(req, res) {
-  const { userId } = req.auth;
-  res.json({ 
-    message: `Hello, authenticated user with ID: ${userId}!` 
-  });
-}

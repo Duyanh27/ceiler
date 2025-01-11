@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { getSocket } from "../../../utils/socket";
+import { getSocket } from "../../utils/socket";
 import { log } from "console";
 import { collectSegmentData } from "next/dist/server/app-render/collect-segment-data";
 

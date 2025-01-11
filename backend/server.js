@@ -3,13 +3,16 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import userRoutes from "./routes/user.route.js"; // Import user routes
 import itemRoutes from "./routes/item.route.js";
-import categoryRoutes from "./routes/category.route.js"
+import categoryRoutes from "./routes/category.route.js";
 import webhookRoutes from "./routes/webhook.route.js";
 import { clerkMiddleware, requireAuth } from "@clerk/express"; // Clerk middleware
 import "dotenv/config";
 import http from "http"; // Required to attach Socket.IO to the server
 import { Server } from "socket.io"; // Socket.IO import
 import cors from "cors"; // Import CORS
+import cron from "node-cron"; // Import cron
+import Item from "../backend/models/item.model.js";
+
 
 dotenv.config();
 
@@ -31,23 +34,14 @@ app.use("/api/webhooks", webhookRoutes);
 
 // Apply Clerk middleware globally to check for valid sessions
 app.use((req, res, next) => {
-    if (req.path === '/api/webhooks') {
-        return next();
-    }
-    return clerkMiddleware()(req, res, next);
+  if (req.path === "/api/webhooks") {
+    return next();
+  }
+  return clerkMiddleware()(req, res, next);
 });
 
 // Middleware to parse JSON data in the request body
 app.use(express.json());
-
-// Socket.IO Connection
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
 
 // Enable CORS
 app.use(
@@ -58,8 +52,40 @@ app.use(
   })
 );
 
+// Socket.IO Connection
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+
+cron.schedule("* * * * *", async () => {
+  try {
+    const now = new Date();
+    const expiredAuctions = await Item.find({
+      endTime: { $lte: now },
+      status: "active",
+    });
+
+    for (const auction of expiredAuctions) {
+      auction.status = "completed";
+      await auction.save();
+      console.log(`Auction ${auction._id} ended.`);
+    }
+  } catch (error) {
+    console.error("Error processing expired auctions:", error.message);
+  }
+});
+
 // User-related routes
 app.use("/api/users", userRoutes);
+
+app.use("/getTime", (req, res) => {
+  console.log(new Date());
+  res.json({ message: new Date() });
+});
 
 // Item-related routes
 app.use(
@@ -71,7 +97,7 @@ app.use(
   itemRoutes
 );
 
-app.use("/api/categories", categoryRoutes)
+app.use("/api/categories", categoryRoutes);
 
 // Example of a protected route to test Clerk integration
 app.use("/api/protected", requireAuth(), (req, res) => {

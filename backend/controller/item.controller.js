@@ -197,6 +197,8 @@ export const createItem = async (req, res) => {
       highestBid: null,
       totalBids: 0,
       winner: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
 
     res.status(201).json({

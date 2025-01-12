@@ -83,35 +83,67 @@ export default function ProfilePage() {
       <div>
         <h3 className="text-xl font-bold text-white mb-4">Add Funds to Wallet</h3>
         
-        {/* Amount Input */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-200 mb-2">
-            Enter Amount ($)
-          </label>
-          <input
-            type="text"
-            value={amount}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '');
-              setAmount(value);
-            }}
-            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-            placeholder="Enter amount"
-          />
+        {/* Quick Select Amount */}
+        <div className="space-y-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Quick Select Amount
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[50, 100, 250, 500, 2000].map((quickAmount) => (
+                <button
+                  key={quickAmount}
+                  onClick={() => setAmount(quickAmount.toString())}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    amount === quickAmount.toString()
+                      ? 'bg-blue-500 border-blue-400 text-white'
+                      : 'border-gray-600 hover:border-blue-400 text-gray-200 hover:bg-gray-700'
+                  }`}
+                >
+                  ${quickAmount}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Custom Amount Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Or Enter Custom Amount ($)
+            </label>
+            <input
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))}
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              placeholder="Enter amount"
+            />
+          </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Modal Actions */}
         <div className="flex justify-end gap-3">
           <button
-            onClick={() => setIsModalOpen(false)}
+            onClick={() => {
+              setIsModalOpen(false);
+              setError("");
+              setAmount("");
+            }}
             className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleAddFunds}
-            disabled={addingFunds}
-            className="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-800 text-white rounded-lg transition-colors flex items-center"
+            disabled={addingFunds || !amount}
+            className="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-800/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center"
           >
             {addingFunds ? (
               <>
@@ -146,6 +178,7 @@ export default function ProfilePage() {
         </div>
       ) : profile && (
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl mx-auto">
+          {/* Profile Header */}
           <div className="flex items-center mb-6">
             <Image
               src={profile.imageUrl || "/images/default-profile.png"}
@@ -160,6 +193,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Wallet Section */}
           <div className="flex items-center justify-between mb-6 bg-gray-700 p-4 rounded-lg">
             <div>
               <p className="text-sm text-gray-400">Wallet Balance</p>

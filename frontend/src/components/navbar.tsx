@@ -4,11 +4,35 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import NotificationDropdown from "./NotificationDropdown";
+import { useApi, useNotificationStore } from "@/api";
 
 export default function Navbar() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const refreshTrigger = useNotificationStore((state) => state.refreshTrigger);
   const router = useRouter();
+  const { getNotifications } = useApi();
+
+  useEffect(() => {
+    console.log("Fetching unread count, refreshTrigger:", refreshTrigger);
+    fetchUnreadCount();
+  }, [refreshTrigger]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const notifications = await getNotifications();
+      const unreadNotifications = notifications.filter(
+        (notif) => !notif.isRead
+      );
+      console.log("Unread notifications count:", unreadNotifications.length);
+      setUnreadCount(unreadNotifications.length);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   const handleSearch = () => {
     console.log("Search Term:", searchTerm);
@@ -22,9 +46,12 @@ export default function Navbar() {
     router.push("/sign-up");
   };
 
+  const toggleNotifications = () => {
+    setIsNotificationsOpen(!isNotificationsOpen);
+  };
+
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
-      {/* Blue Banner: Visible only when not logged in */}
       <SignedOut>
         <div className="bg-blue-500 text-white text-sm flex justify-center items-center px-4 py-2">
           <p className="mr-4">Log in to get your first Bid!</p>
@@ -37,18 +64,15 @@ export default function Navbar() {
         </div>
       </SignedOut>
 
-      {/* Main Navbar */}
       <div
         className="flex justify-between items-center px-8"
         style={{ height: "90px" }}
       >
-        {/* Logo Section */}
         <div className="flex items-center space-x-6">
           <Link href="/">
             <Image src="/images/logo.jpg" alt="Logo" width={100} height={40} />
           </Link>
 
-          {/* Products and About Us Links (Always Visible) */}
           <Link
             href="/products"
             className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100"
@@ -56,14 +80,13 @@ export default function Navbar() {
             Products
           </Link>
           <Link
-            href="/about"
+            href="/about-us"
             className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100"
           >
             About Us
           </Link>
         </div>
 
-        {/* Search Bar */}
         <div className="flex items-center space-x-2">
           <input
             type="text"
@@ -93,7 +116,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* User Section */}
         <div className="flex items-center space-x-4">
           <SignedIn>
             <Link
@@ -102,6 +124,43 @@ export default function Navbar() {
             >
               Sell
             </Link>
+
+            <div className="relative">
+              <button
+                onClick={toggleNotifications}
+                className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100 flex items-center space-x-1"
+              >
+                <div className="relative">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
+                <span>Notifications</span>
+              </button>
+              <NotificationDropdown
+                isOpen={isNotificationsOpen}
+                onClose={() => setIsNotificationsOpen(false)}
+                onNotificationRead={fetchUnreadCount}
+                refreshTrigger={refreshTrigger}
+              />
+            </div>
+
             <Link
               href="/profile"
               className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100"

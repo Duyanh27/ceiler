@@ -8,22 +8,22 @@ export interface Notification {
     timestamp: Date;
   }
   
-  export interface UserProfile {
-    _id: string;
-    clerkId: string;
-    email: string;
-    username: string;
-    imageUrl: string;
-    walletBalance: number;
-    activeBids: string[];
-    wonAuctions: string[];
-    notifications: Notification[];
-    createdAt: string;
-    updatedAt: string;
-  }
+export interface UserProfile {
+  _id: string;
+  clerkId: string;
+  email: string;
+  username: string;
+  imageUrl: string;
+  walletBalance: number;
+  activeBids: string[];
+  wonAuctions: string[];
+  notifications: Notification[];
+  createdAt: string;
+  updatedAt: string;
+}
 
-  export interface ApiError {
-    message: string;
-    code?: string;
-    status?: number;
-  }
+export interface ApiError {
+  message: string;
+  code?: string;
+  status?: number;
+}

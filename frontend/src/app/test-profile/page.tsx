@@ -1,7 +1,7 @@
 "use client";
 
 import { useApi } from "@/api";
-import { UserProfile } from "../../types/user";
+import { UserProfile } from "../../types/index";
 import { useState } from "react";
 
 export default function TestProfilePage() {

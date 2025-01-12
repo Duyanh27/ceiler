@@ -54,13 +54,14 @@ export const getOwnProfile = async (req, res) => {
   }
 };
 
-// Add funds to wallet
+// Add funds to wallet  
 export const addFundsToWallet = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  try {
-    const { amount, userId } = req.body;
+    try {
+        const { amount } = req.body;
+        const clerkId = req.auth.userId; // Get clerkId from auth
 
     if (!amount || typeof amount !== "number" || amount <= 0) {
       await session.abortTransaction();
@@ -77,25 +78,25 @@ export const addFundsToWallet = async (req, res) => {
         .json({ message: `Maximum transaction amount is ${MAX_TRANSACTION}` });
     }
 
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: userId },
-      {
-        $inc: { walletBalance: amount },
-        $push: {
-          notifications: {
-            _id: new mongoose.Types.ObjectId().toString(),
-            message: `Added ${amount} to wallet`,
-            type: "walletUpdated",
-            timestamp: new Date(),
-          },
-        },
-      },
-      {
-        new: true,
-        runValidators: true,
-        session,
-      }
-    );
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: userId },
+            { 
+                $inc: { walletBalance: amount },
+                $push: {
+                    notifications: {
+                        _id: new mongoose.Types.ObjectId().toString(),
+                        message: `Added ${amount} to wallet`,
+                        type: 'walletUpdated',
+                        timestamp: new Date()
+                    }
+                }
+            },
+            { 
+                new: true,
+                runValidators: true,
+                session 
+            }
+        );
 
     if (!updatedUser) {
       await session.abortTransaction();

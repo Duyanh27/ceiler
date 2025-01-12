@@ -98,7 +98,7 @@ const attachIO = (req, res, next) => {
 
 // Middleware Setup
 const setupMiddleware = () => {
-  // Webhook routes must be before body parser
+  // Webhook routes must be before any other middleware
   app.use("/api/webhooks", webhookRoutes);
 
   // Global Clerk middleware except for webhooks
@@ -114,6 +114,7 @@ const setupMiddleware = () => {
 
   app.use(express.json());
   app.use(cors(corsOptions));
+  app.use(express.json());
   app.use(debugMiddleware);
 };
 

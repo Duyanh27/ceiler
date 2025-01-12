@@ -9,7 +9,7 @@ import { Item, GetAllItemsParams } from '../../types';
 import io from 'socket.io-client';
 import { debounce } from 'lodash';
 
-const socket = io('http://localhost:5000');
+const socket = io('https://mammoth-first-lamprey.ngrok-free.app');
 
 const LandingPage = () => {
     const router = useRouter();

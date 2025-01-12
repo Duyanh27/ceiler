@@ -100,15 +100,18 @@ const attachIO = (req, res, next) => {
 const setupMiddleware = () => {
   // Webhook routes must be before body parser
   app.use("/api/webhooks", webhookRoutes);
-  
+
   // Global Clerk middleware except for webhooks
   app.use((req, res, next) => {
-    if (req.path === "/api/webhooks") {
+    if (
+      req.path.startsWith("/api/users/public/getUserName") || // Bypass Clerk for public route
+      req.path === "/api/webhooks"
+    ) {
       return next();
     }
     return clerkMiddleware()(req, res, next);
   });
-  
+
   app.use(express.json());
   app.use(cors(corsOptions));
   app.use(debugMiddleware);
@@ -128,10 +131,7 @@ const setupRoutes = () => {
   });
 
   // Protected API routes
-  app.use("/api/users", verifyClerkJWT, (req, res, next) => {
-    console.log("🔍 Middleware transfer check: req.auth:", req.auth);
-    next();
-  }, userRoutes);
+  app.use("/api/users", userRoutes);
   
   app.use("/api/items", attachIO, itemRoutes);
   app.use("/api/categories", categoryRoutes);

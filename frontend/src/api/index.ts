@@ -133,8 +133,21 @@ export const useApi = () => {
       throw error;
     }
   };
-
-
+  const getUserNameByClerkId = async (
+    clerkId: string
+  ): Promise<string | null> => {
+    try {
+      const response = await makeRequest<{ username: string }>(
+        publicAxiosInstance,
+        "get",
+        `/api/users/public/getUserName/${clerkId}`
+      );
+      return response.username;
+    } catch (error) {
+      console.error(`Error fetching user name for Clerk ID: ${clerkId}`, error);
+      return null;
+    }
+  };
 
   return {
     getProfile,
@@ -144,5 +157,6 @@ export const useApi = () => {
     createItem,
     bidOnItem,
     getItemById,
+    getUserNameByClerkId,
   };
 };

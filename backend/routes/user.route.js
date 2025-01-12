@@ -1,4 +1,3 @@
-// routes/user.route.js
 import express from "express";
 import {
   getUserById,
@@ -8,16 +7,35 @@ import {
   markNotificationsAsRead,
   markNotificationAsRead,
 } from "../controller/user.controller.js";
+import { verifyClerkJWT } from "../middleware/auth.middleware.js";
+import User from "../models/user.model.js"; // Import the User model
+
 
 const router = express.Router();
 
-// Protected routes - auth is handled by middleware in server.js
-router.get('/profile', (req, res, next) => {
-  console.log("➡️ req.auth in /profile route:", req.auth);
-  next();
-}, getOwnProfile);
+// Public route for fetching user name by Clerk ID
+router.get("/public/getUserName/:clerkId", async (req, res) => {
+  try {
+    const { clerkId } = req.params;
+    console.log("Received clerkId:", clerkId); // Log the clerkId
+    if (!clerkId) {
+      return res.status(400).json({ message: "Clerk ID is required" });
+    }
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({ username: user.username });
+  } catch (error) {
+    console.error("Error fetching user name:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
-// Public routes
+// Protected routes
+router.get("/profile", verifyClerkJWT, getOwnProfile);
+
+// Other routes
 router.get("/:id", getUserById);
 router.post("/wallet/add", addFundsToWallet);
 router.delete("/notifications", clearNotifications);

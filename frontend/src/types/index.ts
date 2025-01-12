@@ -53,7 +53,6 @@ export interface Item {
   updatedAt: Date;
 }
 
-
 export interface AllItems {
   items: Item[]; // Array of Item objects
   pagination?: {
@@ -75,7 +74,6 @@ export interface GetAllItemsParams {
   sortOrder?: "asc" | "desc"; // Sorting order
 }
 
-// Interface for category data
 export interface Category {
   _id: string;
   parentCategory: string | null;
@@ -83,7 +81,6 @@ export interface Category {
   createdAt: Date;
 }
 
-// Interface for form data
 export interface CreateItemFormData {
   title: string;
   description: string;
@@ -93,8 +90,6 @@ export interface CreateItemFormData {
   categories: string[];
 }
 
-
-// Interface for form errors
 export interface FormErrors {
   title?: string;
   description?: string;
@@ -140,3 +135,8 @@ export interface BidResponse {
   };
 }
 
+export interface ApiError {
+  message: string;
+  code?: string;
+  status?: number;
+}

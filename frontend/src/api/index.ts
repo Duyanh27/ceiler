@@ -1,12 +1,7 @@
-import {
-  makeRequest,
-  privateAxiosInstance,
-  publicAxiosInstance,
-  setAuthToken,
-} from "./axios";
+import { makeRequest, privateAxiosInstance, publicAxiosInstance, setAuthToken } from "./axios";
 import { useAuth } from "@clerk/nextjs";
-import {
-  UserProfile,
+import { 
+  UserProfile, 
   AllItems,
   Item,
   GetAllItemsParams,
@@ -15,42 +10,96 @@ import {
   CreateItemRequest,
   BidRequest,
   BidResponse,
+  Notification
 } from "../types/index";
 import axios from "axios";
-import { log } from "console";
+import { create } from "zustand";
+
+// Create a store for managing notification refresh state
+interface NotificationStore {
+  refreshTrigger: number;
+  triggerRefresh: () => void;
+}
+
+export const useNotificationStore = create<NotificationStore>((set) => ({
+  refreshTrigger: 0,
+  triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
+}));
 
 export const useApi = () => {
   const { getToken } = useAuth();
+  const triggerRefresh = useNotificationStore((state) => state.triggerRefresh);
 
   // Authenticated API: Fetch own profile
   const getProfile = async (): Promise<UserProfile> => {
     const token = await getToken();
     setAuthToken(token);
-    return await makeRequest<UserProfile>(
-      privateAxiosInstance,
-      "get",
-      "/api/users/profile"
-    );
+    return await makeRequest<UserProfile>(privateAxiosInstance, "get", "/api/users/profile");
   };
 
   // Public API: View other user's profile
   const viewUserProfile = async (username: string): Promise<UserProfile> => {
-    return await makeRequest<UserProfile>(
-      publicAxiosInstance,
+    return await makeRequest<UserProfile>(publicAxiosInstance, "get", `/api/users/${username}`);
+  };
+
+  // Authenticated API: Add funds to wallet
+  const addFundsToWallet = async (amount: number): Promise<void> => {
+    const token = await getToken();
+    setAuthToken(token);
+    try {
+      await makeRequest<void>(
+        privateAxiosInstance,
+        "post",
+        "/api/users/wallet/add",
+        { amount }
+      );
+      console.log('Funds added successfully, triggering notification refresh');
+      // Add a small delay before triggering refresh to ensure the backend has processed the notification
+      setTimeout(() => {
+        triggerRefresh();
+      }, 500);
+    } catch (error) {
+      console.error('Error adding funds:', error);
+      throw error;
+    }
+  };
+
+  // Get user notifications
+  const getNotifications = async (): Promise<Notification[]> => {
+    const token = await getToken();
+    setAuthToken(token);
+    const response = await makeRequest<UserProfile>(
+      privateAxiosInstance,
       "get",
-      `/api/users/${username}`
+      "/api/users/profile"
+    );
+    return response.notifications || [];
+  };
+
+  // Mark a single notification as read
+  const markNotificationAsRead = async (notificationId: string): Promise<void> => {
+    const token = await getToken();
+    setAuthToken(token);
+    const user = await getProfile();
+    return await makeRequest<void>(
+      privateAxiosInstance,
+      "put",
+      "/api/users/notification/read",
+      {
+        userId: user._id,
+        notificationId
+      }
     );
   };
 
-  // Get all item (can have filter)
-  // Public API: Get all items
+  // Get all items (can have filter)
   const getAllItems = async (params?: GetAllItemsParams): Promise<AllItems> => {
     return await makeRequest(
       publicAxiosInstance,
       "get",
       `/api/items/getAllItem`,
       {
-        params, // Pass query params directly
+        params,
       }
     );
   };
@@ -64,9 +113,7 @@ export const useApi = () => {
   };
 
   // Create a new item
-  const createItem = async (
-    itemData: CreateItemRequest
-  ): Promise<CreateItemResponse> => {
+  const createItem = async (itemData: CreateItemRequest): Promise<CreateItemResponse> => {
     const token = await getToken();
     setAuthToken(token);
     return await makeRequest<CreateItemResponse>(
@@ -77,10 +124,7 @@ export const useApi = () => {
     );
   };
 
-  const bidOnItem = async (
-    itemId: string,
-    bidData: BidRequest
-  ): Promise<BidResponse> => {
+  const bidOnItem = async (itemId: string, bidData: BidRequest): Promise<BidResponse> => {
     try {
       const token = await getToken();
       setAuthToken(token);
@@ -90,32 +134,26 @@ export const useApi = () => {
         `/api/items/auctions/${itemId}/bid`,
         { data: bidData }
       );
-      console.log("fetched");
-
       return response;
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
-        // Handle specific Axios error cases
         if (error.response) {
-          // The request was made and the server responded with a non-2xx status code
           console.error("Bid error:", error.response.data);
           throw new Error(error.response.data.message || "Failed to place bid");
         } else if (error.request) {
-          // The request was made but no response was received
           console.error("Bid error: No response received from server");
           throw new Error("Failed to place bid. Please try again later.");
         } else {
-          // Something happened in setting up the request that triggered an Error
           console.error("Bid error:", error.message);
           throw new Error("Failed to place bid. Please try again later.");
         }
       } else {
-        // Handle other types of errors
         console.error("Unexpected bid error:", error);
         throw new Error("Failed to place bid. Please try again later.");
       }
     }
   };
+
   const getItemById = async (itemId: string): Promise<Item> => {
     try {
       const response = await makeRequest<Item>(
@@ -134,8 +172,6 @@ export const useApi = () => {
     }
   };
 
-
-
   return {
     getProfile,
     viewUserProfile,
@@ -144,5 +180,8 @@ export const useApi = () => {
     createItem,
     bidOnItem,
     getItemById,
+    addFundsToWallet,
+    getNotifications,
+    markNotificationAsRead,
   };
 };

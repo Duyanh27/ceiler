@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@shadcn/ui": "^0.0.4",
     "axios": "^1.7.9",
+    "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.471.0",
     "next": "15.1.2",
@@ -20,7 +21,8 @@
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "shadcn-ui": "^0.9.4",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

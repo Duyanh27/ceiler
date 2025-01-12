@@ -21,3 +21,9 @@ export interface Notification {
     createdAt: string;
     updatedAt: string;
   }
+
+  export interface ApiError {
+    message: string;
+    code?: string;
+    status?: number;
+  }

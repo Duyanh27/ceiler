@@ -57,13 +57,14 @@ export const getOwnProfile = async (req, res) => {
   }
 };
 
-// Add funds to wallet
+// Add funds to wallet  
 export const addFundsToWallet = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-        const { amount, userId } = req.body;
+        const { amount } = req.body;
+        const clerkId = req.auth.userId; // Get clerkId from auth
 
         if (!amount || typeof amount !== 'number' || amount <= 0) {
             await session.abortTransaction();
@@ -77,7 +78,7 @@ export const addFundsToWallet = async (req, res) => {
         }
 
         const updatedUser = await User.findOneAndUpdate(
-            { _id: userId },
+            { clerkId: clerkId }, // Find by clerkId instead of _id
             { 
                 $inc: { walletBalance: amount },
                 $push: {

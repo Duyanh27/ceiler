@@ -15,7 +15,6 @@ import {
 import axios from "axios";
 import { create } from "zustand";
 
-// Create a store for managing notification refresh state
 interface NotificationStore {
   refreshTrigger: number;
   triggerRefresh: () => void;
@@ -30,19 +29,16 @@ export const useApi = () => {
   const { getToken } = useAuth();
   const triggerRefresh = useNotificationStore((state) => state.triggerRefresh);
 
-  // Authenticated API: Fetch own profile
   const getProfile = async (): Promise<UserProfile> => {
     const token = await getToken();
     setAuthToken(token);
     return await makeRequest<UserProfile>(privateAxiosInstance, "get", "/api/users/profile");
   };
 
-  // Public API: View other user's profile
   const viewUserProfile = async (username: string): Promise<UserProfile> => {
     return await makeRequest<UserProfile>(publicAxiosInstance, "get", `/api/users/${username}`);
   };
 
-  // Authenticated API: Add funds to wallet
   const addFundsToWallet = async (amount: number): Promise<void> => {
     const token = await getToken();
     setAuthToken(token);
@@ -51,10 +47,9 @@ export const useApi = () => {
         privateAxiosInstance,
         "post",
         "/api/users/wallet/add",
-        { amount }
+        { data: { amount } }  // Fixed: Wrap amount in data object
       );
       console.log('Funds added successfully, triggering notification refresh');
-      // Add a small delay before triggering refresh to ensure the backend has processed the notification
       setTimeout(() => {
         triggerRefresh();
       }, 500);
@@ -64,7 +59,6 @@ export const useApi = () => {
     }
   };
 
-  // Get user notifications
   const getNotifications = async (): Promise<Notification[]> => {
     const token = await getToken();
     setAuthToken(token);
@@ -76,7 +70,6 @@ export const useApi = () => {
     return response.notifications || [];
   };
 
-  // Mark a single notification as read
   const markNotificationAsRead = async (notificationId: string): Promise<void> => {
     const token = await getToken();
     setAuthToken(token);
@@ -85,22 +78,21 @@ export const useApi = () => {
       privateAxiosInstance,
       "put",
       "/api/users/notification/read",
-      {
-        userId: user._id,
-        notificationId
+      { 
+        data: {  // Fixed: Wrap in data object
+          userId: user._id,
+          notificationId
+        }
       }
     );
   };
 
-  // Get all items (can have filter)
   const getAllItems = async (params?: GetAllItemsParams): Promise<AllItems> => {
     return await makeRequest(
       publicAxiosInstance,
       "get",
       `/api/items/getAllItem`,
-      {
-        params,
-      }
+      { params }
     );
   };
 
@@ -112,7 +104,6 @@ export const useApi = () => {
     );
   };
 
-  // Create a new item
   const createItem = async (itemData: CreateItemRequest): Promise<CreateItemResponse> => {
     const token = await getToken();
     setAuthToken(token);
@@ -135,22 +126,18 @@ export const useApi = () => {
         { data: bidData }
       );
       return response;
-    } catch (error: any) {
+    } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           console.error("Bid error:", error.response.data);
           throw new Error(error.response.data.message || "Failed to place bid");
         } else if (error.request) {
-          console.error("Bid error: No response received from server");
           throw new Error("Failed to place bid. Please try again later.");
         } else {
-          console.error("Bid error:", error.message);
           throw new Error("Failed to place bid. Please try again later.");
         }
-      } else {
-        console.error("Unexpected bid error:", error);
-        throw new Error("Failed to place bid. Please try again later.");
       }
+      throw new Error("Failed to place bid. Please try again later.");
     }
   };
 
@@ -162,12 +149,14 @@ export const useApi = () => {
         `/api/items/getOneItem/${itemId}`
       );
       return response;
-    } catch (error: any) {
-      console.error("Detailed error in getItemById:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Detailed error in getItemById:", {
+          message: error.message,
+          response: axios.isAxiosError(error) ? error.response?.data : undefined,
+          status: axios.isAxiosError(error) ? error.response?.status : undefined,
+        });
+      }
       throw error;
     }
   };

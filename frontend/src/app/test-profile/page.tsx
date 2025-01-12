@@ -1,6 +1,6 @@
 "use client";
 
-import { useApi } from "@/api/index.";
+import { useApi } from "@/api";
 import { UserProfile } from "../../types/user";
 import { useState } from "react";
 

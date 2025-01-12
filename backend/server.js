@@ -8,7 +8,6 @@ import "dotenv/config";
 import cors from "cors";
 import { Server } from "socket.io";
 import cron from "node-cron";
-import jwt from 'jsonwebtoken';
 import { clerkMiddleware, requireAuth } from "@clerk/express";
 
 // Local Imports - Configuration
@@ -22,6 +21,9 @@ import webhookRoutes from "./routes/webhook.route.js";
 
 // Local Imports - Models
 import Item from "./models/item.model.js";
+
+// Local middleware
+import { verifyClerkJWT } from "./middleware/auth.middleware.js";
 
 // Initialize Environment Variables
 dotenv.config();
@@ -55,48 +57,6 @@ const debugMiddleware = (req, res, next) => {
 };
 
 // JWT Verification Middleware
-const verifyClerkJWT = async (req, res, next) => {
-  try {
-    console.log("🔐 Verifying JWT...");
-    
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.log("❌ No Bearer token found");
-      return res.status(401).json({ message: "No token provided" });
-    }
-    
-    const token = authHeader.split(" ")[1];
-    console.log("🎟️ Token received:", token);
-    
-    const publicKey = process.env.CLERK_PEM_PUBLIC_KEY;
-    if (!publicKey) {
-      console.error("❌ No public key found");
-      return res.status(500).json({ message: "Server configuration error" });
-    }
-    
-    try {
-      const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] });
-      console.log("✅ Token decoded:", decoded);
-      
-      const userId = decoded.sub;
-      const isValidUserId = /^user_[a-zA-Z0-9]+$/.test(userId);
-      if (!isValidUserId) {
-        console.error("❌ Invalid user ID format:", userId);
-        return res.status(400).json({ message: "Invalid user ID format" });
-      }
-      
-      req.auth = { userId };
-      console.log("🔑 Authenticated user ID:", req.auth.userId);
-      next();
-    } catch (error) {
-      console.error("❌ JWT verification failed:", error.message);
-      return res.status(401).json({ message: "Invalid token", error: error.message });
-    }
-  } catch (error) {
-    console.error("❌ Middleware error:", error.message);
-    return res.status(500).json({ message: "Internal server error", error: error.message });
-  }
-};
 
 // Socket.IO Event Handlers
 const setupSocketIO = (io) => {
@@ -173,8 +133,8 @@ const setupRoutes = () => {
     next();
   }, userRoutes);
   
-  app.use("/api/items", verifyClerkJWT, attachIO, itemRoutes);
-  app.use("/api/categories", verifyClerkJWT, categoryRoutes);
+  app.use("/api/items", attachIO, itemRoutes);
+  app.use("/api/categories", categoryRoutes);
   
   // Protected route example
   app.use("/api/protected", requireAuth(), (req, res) => {
